@@ -2,11 +2,12 @@
 //  GameObject.m
 // 
 
+#import "GameViewController.h"
+
 #import "GameObject.h"
 #import "GameWolf.h"
 #import "GamePig.h"
 #import "GameBlock.h"
-#import "GameViewController.h"
 
 @implementation GameObject
 
@@ -16,7 +17,7 @@
 @synthesize imageView;
 
 @dynamic kGameObjectType;
-@synthesize angle;
+@synthesize angle = angle_;
 @synthesize scale = scale_;
 
 + (GameObject*) GameObjectCreate:(GameObjectType)kGameObjectType {
@@ -35,25 +36,25 @@
 -(id) init {
     DLog(@"GameObject init is called: %@", self);
     if (self = [super init]) {
-        UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget: self action: @selector(translate:)];
+        pan = [[UIPanGestureRecognizer alloc] initWithTarget: self action: @selector(translate:)];
         [pan setMinimumNumberOfTouches: (NSUInteger) 1];
         [pan setMaximumNumberOfTouches: (NSUInteger) 1];
         [pan setDelaysTouchesBegan: 0.1];
         [pan setDelegate: self];
         
-        UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action: @selector(zoom:)];
+        pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action: @selector(zoom:)];
         [pinch setDelaysTouchesBegan: 0.1];
         [pinch setDelegate: self];
         
-        UIRotationGestureRecognizer *rotation = [[UIRotationGestureRecognizer alloc] initWithTarget:self action: @selector(rotate:)];
-        [rotation setDelaysTouchesBegan: 0.1];
-        [rotation setDelegate: self];
+        rotate = [[UIRotationGestureRecognizer alloc] initWithTarget:self action: @selector(rotate:)];
+        [rotate setDelaysTouchesBegan: 0.1];
+        [rotate setDelegate: self];
         
         [self.view addGestureRecognizer: pinch];
-        [self.view addGestureRecognizer: rotation];
+        [self.view addGestureRecognizer: rotate];
         [self.view addGestureRecognizer: pan];
         
-        self.angle = 0.0;
+        angle_ = 0.0;
         scale_ = 1.0;
     }
     
@@ -182,6 +183,7 @@
                 }
             }
         } else if ([gesture state] == UIGestureRecognizerStateCancelled) {
+            // This case happens when the notification bar is activated.
             DLog(@"WARNING: Gesture cancelled on %@ with state %d", self, self.kGameObjectState);
             /*
             if (self.kGameObjectState == kGameObjectStateTransitFromPalette) {

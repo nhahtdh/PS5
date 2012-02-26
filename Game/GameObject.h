@@ -4,6 +4,7 @@
 //
 
 #import <UIKit/UIKit.h>
+// #import <Box2D/Box2D.h>
 
 typedef enum {kGameObjectWolf, kGameObjectPig, kGameObjectBlock} GameObjectType;
 
@@ -13,11 +14,19 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette,  kG
     GameObjectState kGameObjectState;
     UIImageView* imageView;
     
+    CGPoint center;
     CGFloat angle;
     CGFloat scale;
     
+    
+    // UI Interaction
+    UIPanGestureRecognizer *pan;
     CGPoint __startingPosition;
+    
+    UIRotationGestureRecognizer *rotate;
     CGFloat __previousRotation;
+    
+    UIPinchGestureRecognizer *pinch;
     CGFloat __previousScale;
 }
 
@@ -38,11 +47,9 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette,  kG
 
 - (void)resizeDefault;
 
-- (BOOL)canTranslate;
-
-- (BOOL)canRotate;
-
-- (BOOL)canZoom;
+@property (nonatomic, readonly) BOOL canTranslate;
+@property (nonatomic, readonly) BOOL canRotate;
+@property (nonatomic, readonly) BOOL canZoom;
 
 - (void)translate:(UIPanGestureRecognizer *)gesture;
 // MODIFIES: object model (coordinates)

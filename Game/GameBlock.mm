@@ -19,7 +19,7 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 }
 
 - (void) setNextBlockType {
-    self.kBlockType = (self.kBlockType + 1) % 4;
+    self.kBlockType = (GameBlockType) ((self.kBlockType + 1) % 4);
 }
 
 - (id) init {
@@ -31,7 +31,7 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
         [self.view addGestureRecognizer: tap];
     }
     
-    return  self;
+    return self;
 }
 
 - (CGSize) defaultImageSize {

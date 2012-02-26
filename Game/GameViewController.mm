@@ -14,8 +14,10 @@
 @implementation GameViewController
 
 // @synthesize inPlayGameObjects;
+@synthesize gameObjectsInGameArea = gameObjectsInGameArea_;
 @synthesize gameArea;
 
+@synthesize gameObjectsInPalette = gameObjectsInPalette_;
 // @synthesize paletteGameObjects;
 @synthesize palette;
 
@@ -62,8 +64,8 @@
     int blockCount = 0;
     BOOL blockInPalette = NO;
     
-    @synchronized (gameObjectsInPalette) {
-        for (GameObject* o in gameObjectsInPalette) {
+    // @synchronized (gameObjectsInPalette) {
+        for (GameObject* o in self.gameObjectsInPalette) {
             switch ([o kGameObjectType]) {
                 case kGameObjectWolf:
                     wolfCount++;
@@ -80,14 +82,14 @@
                                                    reason: @"Unrecognized object type" userInfo: nil];
             } 
         }
-    }
+    // }
     
     DLog(@"Palette: %dW %dP %dB %@", wolfCount, pigCount, blockCount, blockInPalette ? @"YES" : @"NO");
     
     assert(blockCount == 1);
     
-    @synchronized (gameObjectsInGameArea) {
-        for (GameObject* o in gameObjectsInGameArea) {
+    // @synchronized (gameObjectsInGameArea) {
+        for (GameObject* o in self.gameObjectsInGameArea) {
             switch ([o kGameObjectType]) {
                 case kGameObjectWolf:
                     wolfCount++;
@@ -103,7 +105,7 @@
                                                    reason: @"Unrecognized object type" userInfo: nil];
             }
         }
-    }
+    // }
     
     DLog(@"Both: %dW %dP %dB %@", wolfCount, pigCount, blockCount, blockInPalette ? @"YES" : @"NO");
     
@@ -115,30 +117,35 @@
 - (void) addGameObjectToPalette:(GameObject *)gameObject {
     [gameObject resetToPaletteIcon];
     
-    @synchronized (gameObjectsInPalette) {
-        [gameObjectsInPalette addObject: gameObject];
-    }
+    // @synchronized (gameObjectsInPalette) {
+    //     [gameObjectsInPalette addObject: gameObject];
+    // }
+    
+    [self.gameObjectsInPalette addObject: gameObject];
     
     [self addChildViewController: gameObject];
     
 }
 
 - (void)removeGameObjectFromPalette: (GameObject*) gameObject {
-    @synchronized (gameObjectsInPalette) {
-        [gameObjectsInPalette removeObject: gameObject];
-    }
+    // @synchronized (gameObjectsInPalette) {
+    //     [gameObjectsInPalette removeObject: gameObject];
+    // }
+    [self.gameObjectsInPalette removeObject: gameObject];
 }
 
 - (void)addGameObjectToGameArea:(GameObject *)gameObject {
-    @synchronized (gameObjectsInGameArea) {
-        [gameObjectsInGameArea addObject: gameObject];
-    }
+    // @synchronized (gameObjectsInGameArea) {
+    //    [gameObjectsInGameArea addObject: gameObject];
+    // }
+    [self.gameObjectsInGameArea addObject: gameObject];
 }
 
 - (void)removeGameObjectFromGameArea:(GameObject *)gameObject {
-    @synchronized (gameObjectsInGameArea) {
-        [gameObjectsInGameArea removeObject: gameObject];
-    }
+    // @synchronized (gameObjectsInGameArea) {
+    //    [gameObjectsInGameArea removeObject: gameObject];
+    // }
+    [self.gameObjectsInGameArea removeObject: gameObject];
 }
 
 /*
@@ -158,8 +165,9 @@
     CGFloat padding = 20.;
     CGPoint center = CGPointMake(padding, palette.bounds.size.height / 2);
     
-    @synchronized (gameObjectsInPalette) {
-        for (GameObject* object in gameObjectsInPalette) {
+    // @synchronized (gameObjectsInPalette) {
+    //     for (GameObject* object in gameObjectsInPalette) {
+    for (GameObject* object in self.gameObjectsInPalette) {
             if (object.kGameObjectState == kGameObjectStateOnPalette) {
                 [object.view setCenter: CGPointMake(center.x + object.defaultIconSize.width / 2, center.y)];
                 [palette addSubview: object.view];
@@ -167,7 +175,7 @@
                 center = CGPointMake(center.x + object.defaultIconSize.width + padding, center.y);
             }
         }
-    }
+    // }
     
     [self checkRep];
 }
@@ -227,8 +235,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view
     
-    gameObjectsInGameArea = [NSMutableArray array];
-    gameObjectsInPalette = [NSMutableArray array];
+    gameObjectsInGameArea_ = [NSMutableArray array];
+    gameObjectsInPalette_ = [NSMutableArray array];
     
     [self setUpGameArea];
     [self setUpPalette];
@@ -291,20 +299,20 @@
     DLog(@"Level builder is reset");
     
     // Clean up all items in the palette and the game area
-    @synchronized(gameObjectsInPalette) {
-        for (GameObject* o in gameObjectsInPalette) {
+    // @synchronized(gameObjectsInPalette) {
+        for (GameObject* o in self.gameObjectsInPalette) {
             [o.view removeFromSuperview]; 
         }
-    }
+    // }
     
-    @synchronized(gameObjectsInGameArea) {
-        for (GameObject* o in gameObjectsInGameArea) {
+    // @synchronized(gameObjectsInGameArea) {
+        for (GameObject* o in self.gameObjectsInGameArea) {
             [o.view removeFromSuperview];
         }
-    }
+    // }
     
-    gameObjectsInGameArea = [NSMutableArray array];
-    gameObjectsInPalette = [NSMutableArray array];
+    gameObjectsInGameArea_ = [NSMutableArray array];
+    gameObjectsInPalette_ = [NSMutableArray array];
 
     [self setUpGameArea];
     [self setUpPalette];

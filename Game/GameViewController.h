@@ -7,9 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+// #import <Box2D/Box2D.h>
 #import "GameObject.h"
 
+typedef enum {kLevelBuilderMode, kPlayMode} GameMode;
+
 @interface GameViewController : UIViewController {
+    // GameEngine * gameEngine;
+    
+    GameMode kGameMode;
+    
     NSMutableArray *gameObjectsInGameArea;
     NSMutableArray *gameObjectsInPalette;
 }
@@ -18,11 +25,11 @@
 
 - (IBAction)resetButtonPressed:(id)sender;
 
-// @property (strong, nonatomic) NSMutableArray *inPlayGameObjects;
-@property (strong, nonatomic) IBOutlet UIScrollView *gameArea;
+@property (strong, readonly) NSMutableArray *gameObjectsInGameArea;
+@property (strong) IBOutlet UIScrollView *gameArea;
 
-// @property (strong, nonatomic) NSMutableArray *paletteGameObjects;
-@property (strong, nonatomic) IBOutlet UIView *palette;
+@property (strong, readonly) NSMutableArray *gameObjectsInPalette;
+@property (strong) IBOutlet UIView *palette;
 
 - (void) addGameObjectToPalette: (GameObject*) gameObject;
 
