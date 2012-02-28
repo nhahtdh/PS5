@@ -22,15 +22,16 @@
                                             <rect key="frame" x="12" y="6" width="72" height="33"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                            <state key="normal" title="Start">
-                                                <color key="titleColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
-                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            <state key="normal" title="Play">
+                                                <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
                                             <state key="highlighted">
                                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
                                             <connections>
                                                 <action selector="buttonPressed:" destination="2" eventType="touchUpInside" id="DCx-AW-4KH"/>
+                                                <action selector="playButtonPressed:" destination="2" eventType="touchUpInside" id="ic7-PT-OcM"/>
                                             </connections>
                                         </button>
                                     </barButtonItem>
@@ -40,7 +41,7 @@
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                             <state key="normal" title="Load">
-                                                <color key="titleColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
                                             <state key="highlighted">
@@ -57,7 +58,7 @@
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                             <state key="normal" title="Save">
-                                                <color key="titleColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
                                             <state key="highlighted">
@@ -74,8 +75,8 @@
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                             <state key="normal" title="Reset">
-                                                <color key="titleColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
-                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
                                             <state key="highlighted">
                                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -105,7 +106,11 @@
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
                     <connections>
                         <outlet property="gameArea" destination="bpZ-vd-CKM" id="D4y-6J-UET"/>
+                        <outlet property="loadButton" destination="Za2-09-Onv" id="Myn-W5-yZe"/>
                         <outlet property="palette" destination="9vs-bK-Zhf" id="vLC-Qh-fGl"/>
+                        <outlet property="playButton" destination="mcU-ca-fiB" id="SCq-NM-t3h"/>
+                        <outlet property="resetButton" destination="sSM-U1-NM2" id="Zj2-A8-Dsc"/>
+                        <outlet property="saveButton" destination="ahm-Sr-h8B" id="GiG-K8-4TQ"/>
                     </connections>
                 </viewController>
             </objects>
@@ -117,9 +122,14 @@
             <source key="sourceIdentifier" type="project" relativePath="./Classes/GameViewController.h"/>
             <relationships>
                 <relationship kind="action" name="buttonPressed:"/>
+                <relationship kind="action" name="playButtonPressed:"/>
                 <relationship kind="action" name="resetButtonPressed:"/>
                 <relationship kind="outlet" name="gameArea" candidateClass="UIScrollView"/>
+                <relationship kind="outlet" name="loadButton" candidateClass="UIButton"/>
                 <relationship kind="outlet" name="palette" candidateClass="UIView"/>
+                <relationship kind="outlet" name="playButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="resetButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="saveButton" candidateClass="UIButton"/>
             </relationships>
         </class>
     </classes>

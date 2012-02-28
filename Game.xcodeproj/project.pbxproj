@@ -54,7 +54,6 @@
 		73B6F86414F9F79C003E67E2 /* b2WeldJoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 73B6F83114F9F79C003E67E2 /* b2WeldJoint.cpp */; };
 		73B6F86514F9F79C003E67E2 /* b2WheelJoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 73B6F83314F9F79C003E67E2 /* b2WheelJoint.cpp */; };
 		73B6F86614F9F79C003E67E2 /* b2Rope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 73B6F83614F9F79C003E67E2 /* b2Rope.cpp */; };
-		73B6F86914FA2857003E67E2 /* GameEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 73B6F86814FA2857003E67E2 /* GameEngine.m */; };
 		73B6F88014FA3B45003E67E2 /* breath-bar.png in Resources */ = {isa = PBXBuildFile; fileRef = 73B6F86A14FA3B45003E67E2 /* breath-bar.png */; };
 		73B6F88114FA3B45003E67E2 /* cloud1.png in Resources */ = {isa = PBXBuildFile; fileRef = 73B6F86B14FA3B45003E67E2 /* cloud1.png */; };
 		73B6F88214FA3B45003E67E2 /* cloud2.png in Resources */ = {isa = PBXBuildFile; fileRef = 73B6F86C14FA3B45003E67E2 /* cloud2.png */; };
@@ -208,8 +207,6 @@
 		73B6F83414F9F79C003E67E2 /* b2WheelJoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = b2WheelJoint.h; sourceTree = "<group>"; };
 		73B6F83614F9F79C003E67E2 /* b2Rope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = b2Rope.cpp; sourceTree = "<group>"; };
 		73B6F83714F9F79C003E67E2 /* b2Rope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = b2Rope.h; sourceTree = "<group>"; };
-		73B6F86714FA2857003E67E2 /* GameEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameEngine.h; sourceTree = "<group>"; };
-		73B6F86814FA2857003E67E2 /* GameEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameEngine.m; sourceTree = "<group>"; };
 		73B6F86A14FA3B45003E67E2 /* breath-bar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "breath-bar.png"; sourceTree = "<group>"; };
 		73B6F86B14FA3B45003E67E2 /* cloud1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cloud1.png; sourceTree = "<group>"; };
 		73B6F86C14FA3B45003E67E2 /* cloud2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cloud2.png; sourceTree = "<group>"; };
@@ -483,8 +480,6 @@
 		73E7D04214D7E4F700E03A79 /* Game */ = {
 			isa = PBXGroup;
 			children = (
-				73B6F86714FA2857003E67E2 /* GameEngine.h */,
-				73B6F86814FA2857003E67E2 /* GameEngine.m */,
 				73E7D0D614D7EFD700E03A79 /* GameObject.h */,
 				73E7D0D714D7EFD700E03A79 /* GameObject.mm */,
 				73E7D0D414D7EFD600E03A79 /* GameBlock.h */,
@@ -761,7 +756,6 @@
 				73B6F86414F9F79C003E67E2 /* b2WeldJoint.cpp in Sources */,
 				73B6F86514F9F79C003E67E2 /* b2WheelJoint.cpp in Sources */,
 				73B6F86614F9F79C003E67E2 /* b2Rope.cpp in Sources */,
-				73B6F86914FA2857003E67E2 /* GameEngine.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -15,12 +15,46 @@
 }
 
 - (CGSize) defaultImageSize {
-    return CGSizeMake(88, 88);
+    static const CGSize size = CGSizeMake(88, 88);
+    return size;
 }
 
 - (CGSize) defaultIconSize {
-    return CGSizeMake(100, 100);
+    static const CGSize size = CGSizeMake(100, 100);
+    return size;
 }
+
++ (UIImage*) getImage {
+    static UIImage* pigNormal = [UIImage imageNamed: @"pig.png"];
+    return pigNormal;
+}
+
+// TODO: Check whether this function return properly or not
+- (b2BodyDef) bodyDef {
+    // REQUIRES: This function should only be called after it is confirmed that the game should start.
+    // The object should also be properly inside the game area.
+    assert(kGameObjectState == kGameObjectStateOnGameArea);
+    
+    b2BodyDef bodyDef;
+    bodyDef.position.Set(pixelToMeter(self.view.center.x), pixelToMeter(self.view.center.y));
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.angle = self.angle;
+    return bodyDef;
+}
+
+// TODO: Check whether this funciton return properly or not
+- (b2Shape) shape {
+    // REQUIRES: This function should only be called after it is confirmed that the game should start.
+    // The object should also be properly inside the game area.
+    assert(kGameObjectState == kGameObjectStateOnGameArea);
+    
+    b2PolygonShape shape;
+    shape.SetAsBox(pixelToMeter(self.scale * self.defaultImageSize.width) / 2., pixelToMeter(self.scale * self.defaultImageSize.height) / 2.);
+    
+    return shape;
+}
+
+#pragma mark Gestures
 
 -(BOOL) canTranslate {
     return YES;
@@ -42,7 +76,8 @@
     
     [self.view setAutoresizesSubviews: YES];
     
-    UIImage *pigImage = [UIImage imageNamed:@"pig.png"];
+    // UIImage *pigImage = [UIImage imageNamed:@"pig.png"];
+    UIImage *pigImage = [GamePig getImage];
     // UIImageView *pigImageView = [[UIImageView alloc] initWithImage: pigImage];
     imageView = [[UIImageView alloc] initWithImage: pigImage];
     

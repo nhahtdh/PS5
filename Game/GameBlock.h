@@ -12,10 +12,10 @@
 typedef enum {kGameBlockStraw, kGameBlockWood, kGameBlockIron, kGameBlockStone} GameBlockType;
 
 @interface GameBlock : GameObject {
-    GameBlockType kBlockType;
+    GameBlockType kGameBlockType;
 }
 
-@property (nonatomic, readwrite) GameBlockType kBlockType;
+@property (nonatomic, readwrite) GameBlockType kGameBlockType;
 
 - (void) changeBlockType: (UIGestureRecognizer*) gesture;
 // MODIFIES: object model (block type)

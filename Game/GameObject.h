@@ -4,7 +4,7 @@
 //
 
 #import <UIKit/UIKit.h>
-// #import <Box2D/Box2D.h>
+#import <Box2D/Box2D.h>
 
 typedef enum {kGameObjectWolf, kGameObjectPig, kGameObjectBlock} GameObjectType;
 
@@ -12,12 +12,12 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette,  kG
 
 @interface GameObject : UIViewController <UIGestureRecognizerDelegate> {
     GameObjectState kGameObjectState;
+    
     UIImageView* imageView;
     
-    CGPoint center;
+    // CGPoint center;
     CGFloat angle;
     CGFloat scale;
-    
     
     // UI Interaction
     UIPanGestureRecognizer *pan;
@@ -28,24 +28,33 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette,  kG
     
     UIPinchGestureRecognizer *pinch;
     CGFloat __previousScale;
+    
+    // b2Body *body;
+    // b2Fixture *fixture;
 }
 
-// TODO: Possible to use this + a game state to check whether should translate/rotate/zoom
++ (GameObject*)GameObjectCreate: (GameObjectType) kGameObjectType;
+
 @property (nonatomic, readonly) GameObjectState kGameObjectState;
+@property (nonatomic, readonly) GameObjectType kGameObjectType;
 
 @property (nonatomic, readonly) CGSize defaultImageSize;
 @property (nonatomic, readonly) CGSize defaultIconSize;
 @property (strong, nonatomic, readonly) UIImageView* imageView;
 
-@property (nonatomic, readonly) GameObjectType kGameObjectType;
+@property (nonatomic, readonly) b2BodyDef bodyDef;
+@property (nonatomic, readonly) b2Shape shape;
+@property (nonatomic, readonly) b2FixtureDef fixtureDef;
+
+// @property (nonatomic) CGPoint center;
 @property (nonatomic) CGFloat angle;
 @property (nonatomic, readonly) CGFloat scale;
-
-+ (GameObject*)GameObjectCreate: (GameObjectType) kGameObjectType;
 
 - (void)resetToPaletteIcon;
 
 - (void)resizeDefault;
+
+#pragma mark Gestures
 
 @property (nonatomic, readonly) BOOL canTranslate;
 @property (nonatomic, readonly) BOOL canRotate;

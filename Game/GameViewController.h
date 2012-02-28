@@ -7,13 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
-// #import <Box2D/Box2D.h>
+#import <Box2D/Box2D.h>
 #import "GameObject.h"
 
-typedef enum {kLevelBuilderMode, kPlayMode} GameMode;
+typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
 
 @interface GameViewController : UIViewController {
-    // GameEngine * gameEngine;
+    b2World *gameWorld;
     
     GameMode kGameMode;
     
@@ -21,9 +21,7 @@ typedef enum {kLevelBuilderMode, kPlayMode} GameMode;
     NSMutableArray *gameObjectsInPalette;
 }
 
-- (IBAction)buttonPressed:(id)sender;
-
-- (IBAction)resetButtonPressed:(id)sender;
+@property (readonly) GameMode kGameMode;
 
 @property (strong, readonly) NSMutableArray *gameObjectsInGameArea;
 @property (strong) IBOutlet UIScrollView *gameArea;
@@ -39,6 +37,21 @@ typedef enum {kLevelBuilderMode, kPlayMode} GameMode;
 
 - (void) removeGameObjectFromGameArea: (GameObject*) gameObject;
 
+// - (void) hidePalette;
+
 - (void) redrawPalette;
+
+#pragma mark UIButton
+
+@property (weak, nonatomic) IBOutlet UIButton *playButton;
+@property (weak, nonatomic) IBOutlet UIButton *loadButton;
+@property (weak, nonatomic) IBOutlet UIButton *saveButton;
+@property (weak, nonatomic) IBOutlet UIButton *resetButton;
+
+- (IBAction)buttonPressed:(id)sender;
+
+- (IBAction)resetButtonPressed:(id)sender;
+
+- (IBAction)playButtonPressed:(id)sender;
 
 @end

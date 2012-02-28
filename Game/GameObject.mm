@@ -12,11 +12,17 @@
 @implementation GameObject
 
 @synthesize kGameObjectState = kGameObjectState_;
+@dynamic kGameObjectType;
+
 @dynamic defaultImageSize;
 @dynamic defaultIconSize;
 @synthesize imageView;
 
-@dynamic kGameObjectType;
+@dynamic bodyDef;
+@dynamic shape;
+@dynamic fixtureDef;
+
+// @synthesize center = center_;
 @synthesize angle = angle_;
 @synthesize scale = scale_;
 
@@ -99,6 +105,8 @@
     [self resize: self.defaultImageSize];
 }
 
+#pragma mark Gestures
+
 -(BOOL) canTranslate {
     return YES;
 }
@@ -142,6 +150,7 @@
         if ([gesture state] == UIGestureRecognizerStateEnded) {
             CGPoint centerRelativeToGameArea = [gameViewController.gameArea convertPoint: translatedCenter fromView:gameViewController.view];
             
+            // The object lands inside game area
             if ([gameViewController.gameArea pointInside: centerRelativeToGameArea withEvent: nil]) {
                 DLog(@"Center (%f, %f) is inside game area", centerRelativeToGameArea.x, centerRelativeToGameArea.y);
                 
@@ -159,6 +168,7 @@
                     [gameViewController redrawPalette];
                 }
             } 
+            // The object lands outside game area
             else {
                 switch (self.kGameObjectState) {
                     case kGameObjectStateTransitFromPalette:
