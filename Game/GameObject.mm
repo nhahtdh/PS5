@@ -18,11 +18,26 @@
 @dynamic defaultIconSize;
 @synthesize imageView;
 
+@synthesize body;
 @dynamic bodyDef;
-@dynamic shape;
-@dynamic fixtureDef;
 
-// @synthesize center = center_;
+// TODO: Check whether this funciton return properly or not
+- (b2Shape*) shape {
+    // REQUIRES: This function should only be called after it is confirmed that the game should start.
+    // The object should also be properly inside the game area.
+    assert(self.kGameObjectState == kGameObjectStateOnGameArea);
+    
+    b2PolygonShape *shape = new b2PolygonShape();
+    shape->SetAsBox(pixelToMeter(self.scale * self.defaultImageSize.width) / 2., 
+                    pixelToMeter(self.scale * self.defaultImageSize.height) / 2.);
+    
+    return shape;
+}
+
+@dynamic fixtureDef;
+@synthesize baseTransform;
+
+@synthesize center = center_;
 @synthesize angle = angle_;
 @synthesize scale = scale_;
 
@@ -42,6 +57,8 @@
 -(id) init {
     DLog(@"GameObject init is called: %@", self);
     if (self = [super init]) {
+        // TODO: Should this be specific to each of the object? To save space and probably make more sense
+        // since not all objects can be placed in the game area anyway.
         pan = [[UIPanGestureRecognizer alloc] initWithTarget: self action: @selector(translate:)];
         [pan setMinimumNumberOfTouches: (NSUInteger) 1];
         [pan setMaximumNumberOfTouches: (NSUInteger) 1];
@@ -97,12 +114,38 @@
     kGameObjectState_ = kGameObjectStateOnPalette;
     [self resize: self.defaultIconSize];
     [self.view setTransform: CGAffineTransformIdentity];
-    self.angle = 0.0;
+    angle_ = 0.0;
     scale_ = 1.0;
 }
 
 - (void) resizeDefault {
     [self resize: self.defaultImageSize];
+}
+
+- (void) updateView {
+    assert(body != nil);
+    [self.view setTransform: CGAffineTransformRotate(self.baseTransform, body->GetAngle())];
+    
+    const b2Vec2 &position = body->GetPosition();
+    [self.view setCenter: CGPointMake(meterToPixel(position.x), meterToPixel(position.y))];
+}
+
+- (void) setUpForPlay {
+    pan.enabled = NO;
+    rotate.enabled = NO;
+    pinch.enabled = NO;
+    
+    center_ = self.view.center;
+    baseTransform = self.view.transform;
+}
+
+- (void) setUpForBuilder {
+    pan.enabled = YES;
+    rotate.enabled = YES;
+    pinch.enabled = YES;
+    
+    self.view.center = self.center;
+    self.view.transform = baseTransform;
 }
 
 #pragma mark Gestures
@@ -134,7 +177,7 @@
             [gameViewController.view addSubview: self.view];
             
             // Scale the object to default size and set state if from the palette
-            if ([self kGameObjectState] == kGameObjectStateOnPalette) {
+            if (self.kGameObjectState == kGameObjectStateOnPalette) {
                 [self resizeDefault];
                 kGameObjectState_ = kGameObjectStateTransitFromPalette;
             }
@@ -254,9 +297,9 @@
         __previousRotation = [gesture rotation];
         
         if ([gesture state] == UIGestureRecognizerStateEnded) {
-            self.angle += [gesture rotation];
+            angle_ += [gesture rotation];
             // Limit the angle to [0, 2 * PI)
-            self.angle -= floor(self.angle / M_PI / 2) * M_PI * 2;
+            angle_ -= floor(self.angle / M_PI / 2) * M_PI * 2;
             
             DLog(@"Delta: %f", [gesture rotation]);
             DLog(@"Final angle: %f", self.angle / M_PI * 180);

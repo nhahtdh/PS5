@@ -12,8 +12,11 @@
 
 typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
 
+#define DEFAULT_TIME_STEP (1. / 60.)
+
 @interface GameViewController : UIViewController {
     b2World *gameWorld;
+    NSTimer *timer;
     
     GameMode kGameMode;
     

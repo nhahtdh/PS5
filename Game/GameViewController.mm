@@ -33,6 +33,7 @@
 }
 
 - (void)checkRep {
+    // REQUIRES: Level builder mode.
     // EFFECTS: This function checks game objects in palette and game area to make
     //          sure there is only 1 wolf, 1 pig in total, and there is always a
     //          block in the palette.
@@ -186,12 +187,12 @@
     // The width will also be increased to prevent odd effects at the edge of the screen.
     double widthDelta = 3.;
     double heightDelta = 3.;
-    groundBodyDef.position.Set(pixelToMeter(ground.center.x), pixelToMeter(ground.center.y) - heightDelta);
+    groundBodyDef.position.Set(pixelToMeter(ground.center.x), pixelToMeter(ground.center.y) + heightDelta);
     
     b2Body* groundBody = gameWorld->CreateBody(&groundBodyDef);
     b2PolygonShape groundShape;
-    groundShape.SetAsBox(pixelToMeter(ground.frame.size.width) + widthDelta, 
-                         pixelToMeter(ground.frame.size.height) + heightDelta);
+    groundShape.SetAsBox(pixelToMeter(ground.frame.size.width) / 2. + widthDelta, 
+                         pixelToMeter(ground.frame.size.height) / 2. + heightDelta);
     
     b2FixtureDef groundFixtureDef;
     groundFixtureDef.restitution = 0.1;
@@ -199,6 +200,12 @@
     groundFixtureDef.density = 1.;
     groundFixtureDef.shape = &groundShape;
     groundBody->CreateFixture(&groundFixtureDef);
+    
+    UIView *testView = [[UIView alloc] init];
+    testView.frame = CGRectMake(0, 0, meterToPixel(pixelToMeter(ground.frame.size.width) / 2. + widthDelta) * 2, meterToPixel(pixelToMeter(ground.frame.size.height) / 2. + heightDelta) * 2);
+    testView.center = CGPointMake(meterToPixel(pixelToMeter(ground.center.x)), meterToPixel(pixelToMeter(ground.center.y) + heightDelta));
+    testView.backgroundColor = [UIColor blueColor];
+    [gameArea addSubview: testView];
 }
 
 - (void) setUpButtons {
@@ -311,10 +318,6 @@
     }
     [self.gameObjectsInGameArea removeAllObjects];
     
-    // gameObjectsInGameArea_ = [NSMutableArray array];
-    // gameObjectsInPalette_ = [NSMutableArray array];
-
-    // [self setUpGameArea];
     [self setUpPalette];
 }
 
@@ -332,12 +335,78 @@
     
     DLog(@"Wolf:%d Pig:%d", numWolf, numPig);
     
-    return numWolf == 1 && numPig >= 1;
+    // TODO: Reenable this
+    // return numWolf == 1 && numPig >= 1;
+    return YES;
+}
+
+- (void) setUpBeforePlay {
+    for (GameObject* o in self.gameObjectsInGameArea) {
+        assert(o.body == nil);
+        
+        DLog(@"%@ GameObjectState: %d", [o class], o.kGameObjectState);
+        
+        // TODO: Will this line cause a problem?
+        const b2BodyDef& bodyDef = o.bodyDef;
+        b2Shape *shape = o.shape;
+        const b2FixtureDef& noShapeFixtureDef = o.fixtureDef;
+        
+        b2FixtureDef fixtureDef(noShapeFixtureDef);
+        fixtureDef.shape = shape;
+        
+        o.body = gameWorld->CreateBody(&bodyDef);
+        o.body->CreateFixture(&fixtureDef);
+        // o.body->SetUserData((__bridge void *) o);
+        
+        delete shape;
+        
+        [o setUpForPlay];
+    }
+}
+
+- (void) tearDownAfterPlay {
+    for (GameObject *o in self.gameObjectsInGameArea) {
+        // An object may be removed from the game world
+        // during game play
+        if (o.body != nil) {
+            gameWorld->DestroyBody(o.body);
+            o.body = nil;
+        }
+        
+        [o setUpForBuilder];
+    }
+}
+
+- (void) updateView: (NSTimer*) timer {
+    /*
+    b2Body* node = gameWorld->GetBodyList();
+    while (node) {
+        b2Body *body = node;
+        GameObject* o = (__bridge GameObject*) node->GetUserData();
+        
+        
+    }*/
+    
+    DLog(@"updateView");
+    
+    const CGFloat timeStep = 1. / 60;
+    const int velocityIterations = 8;
+    const int positionIterations = 6;
+    gameWorld->Step(timeStep, velocityIterations, positionIterations);
+    
+    for (GameObject *o in self.gameObjectsInGameArea) {
+        if (o.body)
+            [o updateView];
+    }
+    
+    gameWorld->ClearForces();
 }
 
 - (IBAction)playButtonPressed:(id)sender {
     DLog(@"Play button pressed");
     if (self.kGameMode == kGameModeBuilder) {
+        assert(timer == nil);
+        
         if (![self canPlay]) {
             DLog(@"Failed to start");
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Failed to start"
@@ -352,19 +421,47 @@
         kGameMode_ = kGameModePlay;
         
         // Disable buttons
-        loadButton.enabled = NO;
-        saveButton.enabled = NO;
-        resetButton.enabled = NO;
+        self.loadButton.enabled = NO;
+        self.saveButton.enabled = NO;
+        self.resetButton.enabled = NO;
         
-        // TODO: Disable the palette
+        [self.playButton setTitle: @"Pause" forState: UIControlStateNormal];
+        [self.playButton setTitle: @"Pause" forState: UIControlStateHighlighted];
+        
+        // TODO: What the palette should show when the user is playing.
+        // Make sure the states are consistent throughout
+        self.palette.userInteractionEnabled = NO;
+        
+        [self setUpBeforePlay];
+        
+        timer = [NSTimer scheduledTimerWithTimeInterval: DEFAULT_TIME_STEP 
+                                                 target: self 
+                                               selector: @selector(updateView:)
+                                               userInfo: nil 
+                                                repeats: YES];
         
     } else if (self.kGameMode == kGameModePlay) {
+        [timer invalidate];
+        timer = nil;
+        
+        // Tearing down physical object should only be done after the timer is invalidated
+        // to prevent accessing inexistent objects
+        [self tearDownAfterPlay];
+        
         kGameMode_ = kGameModeBuilder;
         
         // Enable buttons
-        loadButton.enabled = YES;
-        saveButton.enabled = YES;
-        resetButton.enabled = YES;
+        self.loadButton.enabled = YES;
+        self.saveButton.enabled = YES;
+        self.resetButton.enabled = YES;
+        
+        [self.playButton setTitle: @"Play" forState: UIControlStateNormal];
+        [self.playButton setTitle: @"Play" forState: UIControlStateHighlighted];
+        
+        // TODO: Palette.
+        self.palette.userInteractionEnabled = YES;
+        
+        
     } else {
         @throw [NSException exceptionWithName:@"Not implemented exception" reason: @"Unimplemented game mode" userInfo: nil];
     }

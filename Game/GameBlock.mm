@@ -14,12 +14,6 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 
 @synthesize kGameBlockType;
 
-/*
-+ (NSString*) getBlockImageFileName: (GameBlockType) blockType {
-    return kBlockImageFileNames[blockType];
-}
- */
-
 + (UIImage*) getImage: (GameBlockType) kGameBlockType {
     static UIImage* gameBlockImages[4];
     if (gameBlockImages[kGameBlockType] == nil) {
@@ -36,7 +30,7 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 
 - (id) init {
     if (self = [super init]) {
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget: self action: @selector(changeBlockType:)];
+        tap = [[UITapGestureRecognizer alloc] initWithTarget: self action: @selector(changeBlockType:)];
         [tap setNumberOfTapsRequired: 1];
         [tap setNumberOfTouchesRequired: 1];
         
@@ -50,7 +44,7 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 - (b2BodyDef) bodyDef {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
-    assert(kGameObjectState == kGameObjectStateOnGameArea);
+    assert(self.kGameObjectState == kGameObjectStateOnGameArea);
     
     b2BodyDef bodyDef;
     bodyDef.position.Set(pixelToMeter(self.view.center.x), pixelToMeter(self.view.center.y));
@@ -60,38 +54,41 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 }
 
 // TODO: Check whether this funciton return properly or not
-- (b2Shape) shape {
-    // REQUIRES: This function should only be called after it is confirmed that the game should start.
-    // The object should also be properly inside the game area.
-    assert(kGameObjectState == kGameObjectStateOnGameArea);
-    
-    b2PolygonShape shape;
-    shape.SetAsBox(pixelToMeter(self.scale * self.defaultImageSize.width) / 2., pixelToMeter(self.scale * self.defaultImageSize.height) / 2.);
-    
-    return shape;
-}
-
-// TODO: Check whether this funciton return properly or not
 - (b2FixtureDef) fixtureDef {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
-    assert(kGameObjectState == kGameObjectStateOnGameArea);
+    assert(self.kGameObjectState == kGameObjectStateOnGameArea);
     
-    // TODO: Fill in this function
+    b2FixtureDef fixtureDef;
+    
     switch (self.kGameBlockType) {
         case kGameBlockStraw:
-            break;
-        case kGameBlockStone:
+            fixtureDef.density = 1.75;
+            fixtureDef.friction = 0.1;
+            fixtureDef.restitution = 0.15;
             break;
         case kGameBlockWood:
+            fixtureDef.density = 5;
+            fixtureDef.friction = 0.2;
+            fixtureDef.restitution = 0.3;
             break;
         case kGameBlockIron:
+            fixtureDef.density = 12;
+            fixtureDef.friction = 0.4;
+            fixtureDef.restitution = 0.1;
+            break;
+        case kGameBlockStone:
+            fixtureDef.density = 16;
+            fixtureDef.friction = 0.3;
+            fixtureDef.restitution = 0.1;
             break;
         default:
             @throw [NSException exceptionWithName: @"Not implemented exception"
                                           reason: @"Unimplemented game block"
                                         userInfo: nil];
     }
+    
+    return fixtureDef;
 }
 
 - (CGSize) defaultImageSize {
@@ -106,6 +103,17 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 
 - (GameObjectType) kGameObjectType {
     return kGameObjectBlock;
+}
+
+- (void) setUpForPlay {
+    [super setUpForPlay];
+    tap.enabled = NO;
+}
+
+- (void) setUpForBuilder {
+    [super setUpForBuilder];
+    
+    tap.enabled = YES;
 }
 
 #pragma mark Gestures
@@ -129,7 +137,6 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     }
     
     [self setNextBlockType];
-    // [imageView setImage: [UIImage imageNamed: [GameBlock getBlockImageFileName: self.kGameBlockType]]];
     [imageView setImage: [GameBlock getImage: self.kGameBlockType]];
 }
 
@@ -142,8 +149,7 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     [super.view setAutoresizesSubviews:YES];
     
     self.kGameBlockType = kGameBlockStraw;
-    // UIImage *blockImage = [UIImage imageNamed: [GameBlock getBlockImageFileName: self.kGameBlockType]];
-    // imageView = [[UIImageView alloc] initWithImage:blockImage];
+    
     UIImage *blockImage = [GameBlock getImage: self.kGameBlockType];
     imageView = [[UIImageView alloc] initWithImage: blockImage];
     

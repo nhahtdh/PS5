@@ -70,6 +70,51 @@
     return wolfAliveFrames;
 }
 
+// TODO: Check whether this function return properly or not
+- (b2BodyDef) bodyDef {
+    // REQUIRES: This function should only be called after it is confirmed that the game should start.
+    // The object should also be properly inside the game area.
+    assert(self.kGameObjectState == kGameObjectStateOnGameArea);
+    
+    b2BodyDef bodyDef;
+    bodyDef.position.Set(pixelToMeter(self.view.center.x), pixelToMeter(self.view.center.y));
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.angle = self.angle;
+
+    return bodyDef;
+}
+
+// TODO: Check whether this function return properly or not
+- (b2FixtureDef) fixtureDef {
+    // REQUIRES: This function should only be called after it is confirmed that the game should start.
+    // The object should also be properly inside the game area.
+    assert(self.kGameObjectState == kGameObjectStateOnGameArea);
+    
+    b2FixtureDef fixtureDef;
+    
+    fixtureDef.density = 8;
+    fixtureDef.friction = 0.0;
+    fixtureDef.restitution = 0.2;
+    
+    return fixtureDef;
+}
+
+- (void) setUpForPlay {
+    [super setUpForPlay];
+    
+    /*
+    self.imageView.animationImages = [GameWolf getWolfImages];
+    self.imageView.animationDuration = 1;
+    [self.imageView startAnimating];
+     */
+}
+
+- (void) setUpForBuilder {
+    [super setUpForBuilder];
+    
+    // [self.imageView stopAnimating];
+}
+
 #pragma mark Gestures
 
 -(BOOL) canTranslate {

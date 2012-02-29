@@ -5,19 +5,22 @@
 
 #import <UIKit/UIKit.h>
 #import <Box2D/Box2D.h>
+#import "Utilities.h"
 
 typedef enum {kGameObjectWolf, kGameObjectPig, kGameObjectBlock} GameObjectType;
 
-typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette,  kGameObjectStateOnGameArea} GameObjectState;
+typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGameObjectStateOnGameArea} GameObjectState;
 
 @interface GameObject : UIViewController <UIGestureRecognizerDelegate> {
     GameObjectState kGameObjectState;
     
     UIImageView* imageView;
     
-    // CGPoint center;
+    // Level builder model
+    CGPoint center;
     CGFloat angle;
     CGFloat scale;
+    CGAffineTransform baseTransform;
     
     // UI Interaction
     UIPanGestureRecognizer *pan;
@@ -29,8 +32,8 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette,  kG
     UIPinchGestureRecognizer *pinch;
     CGFloat __previousScale;
     
-    // b2Body *body;
-    // b2Fixture *fixture;
+    // In-play attributes
+    b2Body *body;
 }
 
 + (GameObject*)GameObjectCreate: (GameObjectType) kGameObjectType;
@@ -42,17 +45,27 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette,  kG
 @property (nonatomic, readonly) CGSize defaultIconSize;
 @property (strong, nonatomic, readonly) UIImageView* imageView;
 
+@property b2Body *body;
 @property (nonatomic, readonly) b2BodyDef bodyDef;
-@property (nonatomic, readonly) b2Shape shape;
+@property (nonatomic, readonly) b2Shape *shape;
+// NOTE: Every time this property is retrieved, the retrieved object must be
+//       destroyed by the caller
 @property (nonatomic, readonly) b2FixtureDef fixtureDef;
+@property (readonly) CGAffineTransform baseTransform;
 
-// @property (nonatomic) CGPoint center;
-@property (nonatomic) CGFloat angle;
+@property (nonatomic, readonly) CGPoint center;
+@property (nonatomic, readonly) CGFloat angle;
 @property (nonatomic, readonly) CGFloat scale;
 
 - (void)resetToPaletteIcon;
 
 - (void)resizeDefault;
+
+- (void)setUpForPlay;
+
+- (void)setUpForBuilder;
+
+- (void)updateView;
 
 #pragma mark Gestures
 

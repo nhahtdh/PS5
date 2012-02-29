@@ -13,6 +13,8 @@ typedef enum {kGameBlockStraw, kGameBlockWood, kGameBlockIron, kGameBlockStone} 
 
 @interface GameBlock : GameObject {
     GameBlockType kGameBlockType;
+    
+    UITapGestureRecognizer *tap;
 }
 
 @property (nonatomic, readwrite) GameBlockType kGameBlockType;

@@ -22,7 +22,3 @@
 #define ALog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
 #define CGRectLog(rect) DLog(@"%f %f %f %f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-
-#define meterToPixel(x) ((x) * 80.)
-
-#define pixelToMeter(x) ((x) / 80.)

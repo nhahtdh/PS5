@@ -25,7 +25,10 @@
 }
 
 + (UIImage*) getImage {
-    static UIImage* pigNormal = [UIImage imageNamed: @"pig.png"];
+    static UIImage* pigNormal;
+    if (pigNormal == nil) {
+        pigNormal = [UIImage imageNamed: @"pig.png"];
+    }
     return pigNormal;
 }
 
@@ -33,7 +36,7 @@
 - (b2BodyDef) bodyDef {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
-    assert(kGameObjectState == kGameObjectStateOnGameArea);
+    assert(self.kGameObjectState == kGameObjectStateOnGameArea);
     
     b2BodyDef bodyDef;
     bodyDef.position.Set(pixelToMeter(self.view.center.x), pixelToMeter(self.view.center.y));
@@ -42,16 +45,19 @@
     return bodyDef;
 }
 
-// TODO: Check whether this funciton return properly or not
-- (b2Shape) shape {
+// TODO: Check whether this function return properly or not
+- (b2FixtureDef) fixtureDef {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
-    assert(kGameObjectState == kGameObjectStateOnGameArea);
+    assert(self.kGameObjectState == kGameObjectStateOnGameArea);
     
-    b2PolygonShape shape;
-    shape.SetAsBox(pixelToMeter(self.scale * self.defaultImageSize.width) / 2., pixelToMeter(self.scale * self.defaultImageSize.height) / 2.);
+    b2FixtureDef fixtureDef;
     
-    return shape;
+    fixtureDef.density = 2.5;
+    fixtureDef.friction = 0.2;
+    fixtureDef.restitution = 0.1;
+    
+    return fixtureDef;
 }
 
 #pragma mark Gestures
