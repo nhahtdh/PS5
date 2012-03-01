@@ -24,4 +24,10 @@ typedef enum {kGameBlockStraw, kGameBlockWood, kGameBlockIron, kGameBlockStone} 
 // REQUIRES: game in designer mode
 // EFFECTS: the object changes block type
 
+#pragma mark Gameplay mechanics
+
+- (void) setUpForPlay;
+
+- (void) setUpForBuilder;
+
 @end

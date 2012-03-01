@@ -8,6 +8,25 @@
 
 #import "GameObject.h"
 
-@interface GameWolf : GameObject
+@interface GameWolf : GameObject {
+    UIImageView *degreeView;
+    UIImageView *arrowView;
+    UIImageView *windSuckView;
+    
+    CGFloat blowingAngle;
+    
+    UIPanGestureRecognizer *panArrow;
+    UITapGestureRecognizer *blowAir;
+}
+
+@property (strong, nonatomic, readonly) UIImageView *degreeView;
+@property (strong, nonatomic, readonly) UIImageView *arrowView;
+@property (strong, nonatomic, readonly) UIImageView *windSuckView;
+
+@property (readonly) CGFloat blowingAngle;
+
+- (void) changeBlowingAngle: (UIPanGestureRecognizer*) gesture;
+
+- (void) blowAir: (UITapGestureRecognizer*) gesture;
 
 @end

@@ -38,32 +38,46 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
 
 + (GameObject*)GameObjectCreate: (GameObjectType) kGameObjectType;
 
+#pragma mark GameObject view
+
 @property (nonatomic, readonly) GameObjectState kGameObjectState;
-@property (nonatomic, readonly) GameObjectType kGameObjectType;
 
 @property (nonatomic, readonly) CGSize defaultImageSize;
 @property (nonatomic, readonly) CGSize defaultIconSize;
 @property (strong, nonatomic, readonly) UIImageView* imageView;
 
-@property b2Body *body;
-@property (nonatomic, readonly) b2BodyDef bodyDef;
-@property (nonatomic, readonly) b2Shape *shape;
-// NOTE: Every time this property is retrieved, the retrieved object must be
-//       destroyed by the caller
-@property (nonatomic, readonly) b2FixtureDef fixtureDef;
-@property (readonly) CGAffineTransform baseTransform;
+- (void)resetToPaletteIcon;
+
+- (void)resizeDefault;
+
+#pragma mark GameObject properties
+
+@property (nonatomic, readonly) GameObjectType kGameObjectType;
 
 @property (nonatomic, readonly) CGPoint center;
 @property (nonatomic, readonly) CGFloat angle;
 @property (nonatomic, readonly) CGFloat scale;
 
-- (void)resetToPaletteIcon;
+@property (nonatomic, readonly) CGFloat maxScale;
+@property (nonatomic, readonly) CGFloat minScale;
 
-- (void)resizeDefault;
+@property (nonatomic, readonly) b2BodyDef bodyDef;
+@property (nonatomic, readonly) b2Shape *shape;
+// NOTE: Every time the shape is retrieved, the caller is responsible for destroying the object
+@property (nonatomic, readonly) b2FixtureDef fixtureDef;
+
+#pragma mark Gameplay mechanics
+
+@property b2Body *body;
+@property (readonly) CGAffineTransform baseTransform;
 
 - (void)setUpForPlay;
 
 - (void)setUpForBuilder;
+
+- (void)applyDamage: (const b2ContactImpulse*) impulses;
+// REQUIRES: This function should only be called from a subclass of b2ContactListener to apply damage
+//           to the GameObject.
 
 - (void)updateView;
 

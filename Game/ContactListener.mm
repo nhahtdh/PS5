@@ -12,7 +12,7 @@ class ContactListener: public b2ContactListener {
 public:
     void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 	{
-		// contact->Get
+		
 	}
 };
 

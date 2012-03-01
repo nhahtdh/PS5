@@ -32,7 +32,6 @@
     return pigNormal;
 }
 
-// TODO: Check whether this function return properly or not
 - (b2BodyDef) bodyDef {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
@@ -45,7 +44,6 @@
     return bodyDef;
 }
 
-// TODO: Check whether this function return properly or not
 - (b2FixtureDef) fixtureDef {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
@@ -71,25 +69,30 @@
 }
 
 -(BOOL) canZoom {
-    return NO;
+    return YES;
+}
+
+-(CGFloat) maxScale {
+    return 1.5;
+}
+
+-(CGFloat) minScale {
+    return 0.8;
 }
 
 #pragma mark - View life cycle
 
 - (void) viewDidLoad {
     [super viewDidLoad];
+    
     DLog(@"Pig viewDidLoad called.");
     
     [self.view setAutoresizesSubviews: YES];
     
-    // UIImage *pigImage = [UIImage imageNamed:@"pig.png"];
     UIImage *pigImage = [GamePig getImage];
-    // UIImageView *pigImageView = [[UIImageView alloc] initWithImage: pigImage];
     imageView = [[UIImageView alloc] initWithImage: pigImage];
     
-    // [self.view addSubview: pigImageView];
     [self.view addSubview: imageView];
-    [self.view setFrame: CGRectMake(0, 0, pigImage.size.width, pigImage.size.height)];
     [self.view setBackgroundColor: [UIColor clearColor]];
 }
 

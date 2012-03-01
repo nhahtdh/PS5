@@ -13,6 +13,6 @@ double meterToPixel(double x);
 
 double pixelToMeter(double x);
 
-NSArray* imageToFrames(NSString* imageName, CGSize frameSize);
+NSArray* imageToFrames(NSString* imageName, int framePerRow, int framePerColumn);
 
 #endif

@@ -40,7 +40,6 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     return self;
 }
 
-// TODO: Check whether this function return properly or not
 - (b2BodyDef) bodyDef {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
@@ -53,7 +52,6 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     return bodyDef;
 }
 
-// TODO: Check whether this funciton return properly or not
 - (b2FixtureDef) fixtureDef {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
@@ -101,6 +99,14 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     return size;
 }
 
+- (CGFloat) maxScale {
+    return 3.;
+}
+
+- (CGFloat) minScale {
+    return 0.75;
+}
+
 - (GameObjectType) kGameObjectType {
     return kGameObjectBlock;
 }
@@ -144,6 +150,7 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 
 - (void) viewDidLoad {
     [super viewDidLoad];
+    
     DLog(@"Block viewDidLoad called.");
     
     [super.view setAutoresizesSubviews:YES];
@@ -154,7 +161,6 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     imageView = [[UIImageView alloc] initWithImage: blockImage];
     
     [self.view addSubview: imageView];
-    [self.view setFrame: CGRectMake(0, 0, blockImage.size.width, blockImage.size.height)];
     [self.view setBackgroundColor: [UIColor clearColor]];
 }
 @end

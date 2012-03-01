@@ -176,8 +176,6 @@
     CGFloat gameAreaWidth = backgroundWidth;
     [gameArea setContentSize:CGSizeMake(gameAreaWidth, gameAreaHeight)];
     
-    // TODO: This function does more than its description
-    
     // Setup physics representation of the ground
     b2BodyDef groundBodyDef;
     groundBodyDef.type = b2_staticBody;
@@ -339,7 +337,6 @@
         
         DLog(@"%@ GameObjectState: %d", [o class], o.kGameObjectState);
         
-        // TODO: Will this line cause a problem?
         const b2BodyDef& bodyDef = o.bodyDef;
         b2Shape *shape = o.shape;
         const b2FixtureDef& noShapeFixtureDef = o.fixtureDef;
@@ -349,7 +346,7 @@
         
         o.body = gameWorld->CreateBody(&bodyDef);
         o.body->CreateFixture(&fixtureDef);
-        // o.body->SetUserData((__bridge void *) o);
+        o.body->SetUserData((__bridge void *) o);
         
         delete shape;
         
@@ -371,16 +368,7 @@
 }
 
 - (void) updateView: (NSTimer*) timer {
-    /*
-    b2Body* node = gameWorld->GetBodyList();
-    while (node) {
-        b2Body *body = node;
-        GameObject* o = (__bridge GameObject*) node->GetUserData();
-        
-        
-    }*/
-    
-    DLog(@"updateView");
+    // DLog(@"updateView");
     
     const int velocityIterations = 8;
     const int positionIterations = 6;
@@ -426,13 +414,14 @@
         
         [self setUpBeforePlay];
         
-        timer = [NSTimer scheduledTimerWithTimeInterval: 1. / UPDATES_PER_SEC 
+        timer = [NSTimer scheduledTimerWithTimeInterval: 1. / UPDATES_PER_SECOND
                                                  target: self 
                                                selector: @selector(updateView:)
                                                userInfo: nil 
                                                 repeats: YES];
         
     } else if (self.kGameMode == kGameModePlay) {
+        // Remove the timer
         [timer invalidate];
         timer = nil;
         

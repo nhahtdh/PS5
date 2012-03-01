@@ -21,7 +21,6 @@
 @synthesize body;
 @dynamic bodyDef;
 
-// TODO: Check whether this funciton return properly or not
 - (b2Shape*) shape {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
@@ -40,6 +39,14 @@
 @synthesize center = center_;
 @synthesize angle = angle_;
 @synthesize scale = scale_;
+
+- (CGFloat) maxScale {
+    return 5.;
+}
+
+- (CGFloat) minScale {
+    return 0.25;
+}
 
 + (GameObject*) GameObjectCreate:(GameObjectType)kGameObjectType {
     switch (kGameObjectType) {
@@ -128,10 +135,6 @@
     
     const b2Vec2 &position = body->GetPosition();
     [self.view setCenter: CGPointMake(meterToPixel(position.x), meterToPixel(position.y))];
-    
-    // body->
-    // DLog(@"F:(%f, %f) T:%f",  body->m_force.x, body->m_force.y, body->m_torque);
-    
 }
 
 - (void) setUpForPlay {
@@ -264,16 +267,17 @@
     if ([self canZoom]) {
         DLog(@"Scale: %f", [gesture scale]);
         if ([gesture state] == UIGestureRecognizerStateBegan) {
-            __previousScale = 1.0;
+            __previousScale = self.scale;
         }
         
-        CGFloat scaleStep = [gesture scale] / __previousScale;
+        CGFloat currentScale = MAX(MIN([gesture scale] * self.scale, self.maxScale), self.minScale);  
+        CGFloat scaleStep = currentScale / __previousScale;
         [self.view setTransform: CGAffineTransformScale(self.view.transform, scaleStep, scaleStep)];
         
-        __previousScale = [gesture scale];
+        __previousScale = currentScale;
         
         if ([gesture state] == UIGestureRecognizerStateEnded) {
-            scale_ *= [gesture scale];
+            scale_ = currentScale;
             DLog(@"Final scale: %f", scale_);
         }
         

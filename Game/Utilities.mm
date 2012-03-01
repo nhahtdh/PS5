@@ -18,15 +18,13 @@ double pixelToMeter(double x) {
     return x / PIXEL_PER_METER;
 }
 
-NSArray* imageToFrames(NSString* imageName, CGSize frameSize) {
+NSArray* imageToFrames(NSString* imageName, int framePerRow, int framePerColumn) {
     UIImage *image = [UIImage imageNamed: imageName];
     CGSize imageSize = image.size;
     
-    int framePerRow = (int) floor(imageSize.height / frameSize.height + .5);
-    int framePerColumn = (int) floor(imageSize.width / frameSize.width + .5);
-
-    int numberOfFrames = framePerColumn * framePerRow;
+    CGSize frameSize = CGSizeMake(imageSize.width / framePerRow, imageSize.height / framePerColumn);
     
+    int numberOfFrames = framePerColumn * framePerRow;
     
     CGImageRef imageRef = [[UIImage imageNamed: imageName] CGImage];
     
