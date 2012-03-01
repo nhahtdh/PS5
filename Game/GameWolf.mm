@@ -24,47 +24,13 @@
     return size;
 }
 
-+ (CGRect) getBoundingBoxAt: (int) frameNumber {
-    // REQUIRE: 0 <= frameNumber < total number of frames in wolfs.png
-    //          The numbering starts from top-left corner, from left-to-right,
-    //          then top-to-bottom
-    // EFFECTS: return a CGRect that represents the specified frame of the wolf
-    
-    CGFloat singleFrameWidth = 225;
-    CGFloat singleFrameHeight = 150;
-    int framePerRow = 5;
-    int framePerColumn = 3;
-    
-    int numberOfFrames = framePerColumn * framePerRow;
-    
-    assert(frameNumber >= 0 && frameNumber < numberOfFrames);
-    // if (frameNumber < 0 || frameNumber >= numberOfFrames)
-    //     [NSException raise:@"Invalid frame number" 
-    //                 format:@"Frame number %d does not exist", (int) frameNumber];
-    
-    CGFloat xCoordinate = singleFrameWidth * (frameNumber % framePerRow);
-    CGFloat yCoordinate = singleFrameHeight * (frameNumber / framePerRow);
-    
-    return CGRectMake(xCoordinate, yCoordinate, singleFrameWidth, singleFrameHeight);
-}
-
 // TODO: Wolf alive and wolf die
 + (NSArray*) getWolfImages {
     static NSArray* wolfAliveFrames;
     
     if (wolfAliveFrames == nil) {
-        CGImageRef wolfAliveImage = [[UIImage imageNamed: @"wolfs.png"] CGImage];
-        int numberOfFrames = 15;
-        
-        NSMutableArray* a = [NSMutableArray array];
-        
-        for (int i = 0; i < numberOfFrames; i++) {
-            UIImage* frame = [UIImage imageWithCGImage:
-                              CGImageCreateWithImageInRect(wolfAliveImage, [GameWolf getBoundingBoxAt: i])];
-            [a addObject: frame];
-        }
-        
-        wolfAliveFrames = [NSArray arrayWithArray: a];
+        // TODO: defaultImageSize
+        wolfAliveFrames = imageToFrames(@"wolfs.png", CGSizeMake(225, 150));
     }
     
     return wolfAliveFrames;
@@ -93,7 +59,7 @@
     b2FixtureDef fixtureDef;
     
     fixtureDef.density = 8;
-    fixtureDef.friction = 0.0;
+    fixtureDef.friction = 1.0;
     fixtureDef.restitution = 0.2;
     
     return fixtureDef;

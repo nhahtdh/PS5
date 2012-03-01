@@ -196,20 +196,13 @@
     
     b2FixtureDef groundFixtureDef;
     groundFixtureDef.restitution = 0.1;
-    groundFixtureDef.friction = 0.3;
+    groundFixtureDef.friction = 0.5;
     groundFixtureDef.density = 1.;
     groundFixtureDef.shape = &groundShape;
     groundBody->CreateFixture(&groundFixtureDef);
-    
-    UIView *testView = [[UIView alloc] init];
-    testView.frame = CGRectMake(0, 0, meterToPixel(pixelToMeter(ground.frame.size.width) / 2. + widthDelta) * 2, meterToPixel(pixelToMeter(ground.frame.size.height) / 2. + heightDelta) * 2);
-    testView.center = CGPointMake(meterToPixel(pixelToMeter(ground.center.x)), meterToPixel(pixelToMeter(ground.center.y) + heightDelta));
-    testView.backgroundColor = [UIColor blueColor];
-    [gameArea addSubview: testView];
 }
 
 - (void) setUpButtons {
-    // [playButton setTitleColor: [UIColor grayColor] forState: UIControlStateDisabled];
     UIColor *disabledTitleColor = [UIColor grayColor];
     [loadButton setTitleColor: disabledTitleColor forState: UIControlStateDisabled];
     [saveButton setTitleColor: disabledTitleColor forState: UIControlStateDisabled];
@@ -389,10 +382,9 @@
     
     DLog(@"updateView");
     
-    const CGFloat timeStep = 1. / 60;
     const int velocityIterations = 8;
     const int positionIterations = 6;
-    gameWorld->Step(timeStep, velocityIterations, positionIterations);
+    gameWorld->Step(DEFAULT_TIME_STEP, velocityIterations, positionIterations);
     
     for (GameObject *o in self.gameObjectsInGameArea) {
         if (o.body)
@@ -403,7 +395,7 @@
 }
 
 - (IBAction)playButtonPressed:(id)sender {
-    DLog(@"Play button pressed");
+    DLog(@"%@ button pressed", self.playButton.titleLabel.text);
     if (self.kGameMode == kGameModeBuilder) {
         assert(timer == nil);
         
@@ -421,12 +413,12 @@
         kGameMode_ = kGameModePlay;
         
         // Disable buttons
-        self.loadButton.enabled = NO;
-        self.saveButton.enabled = NO;
-        self.resetButton.enabled = NO;
+        self.loadButton.hidden = YES;
+        self.saveButton.hidden = YES;
+        self.resetButton.hidden = YES;
         
-        [self.playButton setTitle: @"Pause" forState: UIControlStateNormal];
-        [self.playButton setTitle: @"Pause" forState: UIControlStateHighlighted];
+        [self.playButton setTitle: @"End" forState: UIControlStateNormal];
+        [self.playButton setTitle: @"End" forState: UIControlStateHighlighted];
         
         // TODO: What the palette should show when the user is playing.
         // Make sure the states are consistent throughout
@@ -434,7 +426,7 @@
         
         [self setUpBeforePlay];
         
-        timer = [NSTimer scheduledTimerWithTimeInterval: DEFAULT_TIME_STEP 
+        timer = [NSTimer scheduledTimerWithTimeInterval: 1. / UPDATES_PER_SEC 
                                                  target: self 
                                                selector: @selector(updateView:)
                                                userInfo: nil 
@@ -451,9 +443,9 @@
         kGameMode_ = kGameModeBuilder;
         
         // Enable buttons
-        self.loadButton.enabled = YES;
-        self.saveButton.enabled = YES;
-        self.resetButton.enabled = YES;
+        self.loadButton.hidden = NO;
+        self.saveButton.hidden = NO;
+        self.resetButton.hidden = NO;
         
         [self.playButton setTitle: @"Play" forState: UIControlStateNormal];
         [self.playButton setTitle: @"Play" forState: UIControlStateHighlighted];
@@ -463,7 +455,9 @@
         
         
     } else {
-        @throw [NSException exceptionWithName:@"Not implemented exception" reason: @"Unimplemented game mode" userInfo: nil];
+        @throw [NSException exceptionWithName: @"Not implemented exception" 
+                                       reason: @"Unimplemented game mode" 
+                                     userInfo: nil];
     }
 }
 

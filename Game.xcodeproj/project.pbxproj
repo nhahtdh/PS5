@@ -76,7 +76,9 @@
 		73B6F89314FA3B45003E67E2 /* windblow3.png in Resources */ = {isa = PBXBuildFile; fileRef = 73B6F87D14FA3B45003E67E2 /* windblow3.png */; };
 		73B6F89414FA3B45003E67E2 /* windsuck.png in Resources */ = {isa = PBXBuildFile; fileRef = 73B6F87E14FA3B45003E67E2 /* windsuck.png */; };
 		73B6F89514FA3B45003E67E2 /* wolfdie.png in Resources */ = {isa = PBXBuildFile; fileRef = 73B6F87F14FA3B45003E67E2 /* wolfdie.png */; };
-		73B81F4614FE69EB00B28195 /* Utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 73B81F4514FE69EB00B28195 /* Utilities.cpp */; };
+		73B81F4614FE69EB00B28195 /* Utilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73B81F4514FE69EB00B28195 /* Utilities.mm */; };
+		73B81F4E14FEA1A200B28195 /* GameBreath.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73B81F4D14FEA1A100B28195 /* GameBreath.mm */; };
+		73B81F5314FEB79300B28195 /* ContactListener.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73B81F5214FEB79200B28195 /* ContactListener.mm */; };
 		73E7D03D14D7E4F700E03A79 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73E7D03C14D7E4F700E03A79 /* UIKit.framework */; };
 		73E7D03F14D7E4F700E03A79 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73E7D03E14D7E4F700E03A79 /* Foundation.framework */; };
 		73E7D04114D7E4F700E03A79 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73E7D04014D7E4F700E03A79 /* CoreGraphics.framework */; };
@@ -231,7 +233,10 @@
 		73B6F87E14FA3B45003E67E2 /* windsuck.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = windsuck.png; sourceTree = "<group>"; };
 		73B6F87F14FA3B45003E67E2 /* wolfdie.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wolfdie.png; sourceTree = "<group>"; };
 		73B81F4314FE692600B28195 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
-		73B81F4514FE69EB00B28195 /* Utilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utilities.cpp; sourceTree = "<group>"; };
+		73B81F4514FE69EB00B28195 /* Utilities.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Utilities.mm; sourceTree = "<group>"; };
+		73B81F4C14FEA1A000B28195 /* GameBreath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameBreath.h; sourceTree = "<group>"; };
+		73B81F4D14FEA1A100B28195 /* GameBreath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GameBreath.mm; sourceTree = "<group>"; };
+		73B81F5214FEB79200B28195 /* ContactListener.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ContactListener.mm; sourceTree = "<group>"; };
 		73E7D03814D7E4F700E03A79 /* Game.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Game.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		73E7D03C14D7E4F700E03A79 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		73E7D03E14D7E4F700E03A79 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -491,6 +496,8 @@
 				73E7D0D914D7EFD700E03A79 /* GamePig.mm */,
 				73E7D0DA14D7EFD700E03A79 /* GameWolf.h */,
 				73E7D0DB14D7EFD700E03A79 /* GameWolf.mm */,
+				73B81F4C14FEA1A000B28195 /* GameBreath.h */,
+				73B81F4D14FEA1A100B28195 /* GameBreath.mm */,
 				73E7D07814D7E73900E03A79 /* Images */,
 				73E7D04B14D7E4F700E03A79 /* GameAppDelegate.h */,
 				73E7D04C14D7E4F700E03A79 /* GameAppDelegate.mm */,
@@ -499,7 +506,8 @@
 				73E7D05514D7E4F700E03A79 /* GameViewController.mm */,
 				73E7D04314D7E4F700E03A79 /* Supporting Files */,
 				73B81F4314FE692600B28195 /* Utilities.h */,
-				73B81F4514FE69EB00B28195 /* Utilities.cpp */,
+				73B81F4514FE69EB00B28195 /* Utilities.mm */,
+				73B81F5214FEB79200B28195 /* ContactListener.mm */,
 			);
 			path = Game;
 			sourceTree = "<group>";
@@ -761,7 +769,9 @@
 				73B6F86414F9F79C003E67E2 /* b2WeldJoint.cpp in Sources */,
 				73B6F86514F9F79C003E67E2 /* b2WheelJoint.cpp in Sources */,
 				73B6F86614F9F79C003E67E2 /* b2Rope.cpp in Sources */,
-				73B81F4614FE69EB00B28195 /* Utilities.cpp in Sources */,
+				73B81F4614FE69EB00B28195 /* Utilities.mm in Sources */,
+				73B81F4E14FEA1A200B28195 /* GameBreath.mm in Sources */,
+				73B81F5314FEB79300B28195 /* ContactListener.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

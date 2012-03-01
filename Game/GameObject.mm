@@ -128,6 +128,10 @@
     
     const b2Vec2 &position = body->GetPosition();
     [self.view setCenter: CGPointMake(meterToPixel(position.x), meterToPixel(position.y))];
+    
+    // body->
+    // DLog(@"F:(%f, %f) T:%f",  body->m_force.x, body->m_force.y, body->m_torque);
+    
 }
 
 - (void) setUpForPlay {
@@ -136,7 +140,7 @@
     pinch.enabled = NO;
     
     center_ = self.view.center;
-    baseTransform = self.view.transform;
+    baseTransform = CGAffineTransformMakeScale(self.scale, self.scale);
 }
 
 - (void) setUpForBuilder {
@@ -145,7 +149,7 @@
     pinch.enabled = YES;
     
     self.view.center = self.center;
-    self.view.transform = baseTransform;
+    [self.view setTransform: CGAffineTransformScale(CGAffineTransformMakeRotation(self.angle), self.scale, self.scale)];
 }
 
 #pragma mark Gestures

@@ -54,7 +54,7 @@
     b2FixtureDef fixtureDef;
     
     fixtureDef.density = 2.5;
-    fixtureDef.friction = 0.2;
+    fixtureDef.friction = 0.8;
     fixtureDef.restitution = 0.1;
     
     return fixtureDef;
