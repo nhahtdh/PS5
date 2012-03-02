@@ -14,6 +14,11 @@
 #define MIN_BLOWING_ANGLE (-M_PI / 3)
 #define DEFAULT_BLOWING_ANGLE (M_PI / 3)
 
+// Every time the power varies, it will change by one quantum
+// This defines the number of quantum between 0% to 100% of the breath
+// power.
+#define NUM_POWER_QUANTUM 60
+
 // The time for the wolf to release the breath
 #define BLOWING_TIME (1.)
 
@@ -22,7 +27,10 @@
     UIImageView *arrowView;
     UIImageView *windSuckView;
     UIImageView *powerBar;
+    UIImageView *staticPowerBar;
+    
     NSTimer *powerTimer;
+    NSInteger __counter;
     
     CGFloat blowingAngle;
     CGFloat power;
@@ -35,6 +43,7 @@
 @property (strong, nonatomic, readonly) UIImageView *arrowView;
 @property (strong, nonatomic, readonly) UIImageView *windSuckView;
 @property (strong, nonatomic, readonly) UIImageView *powerBar;
+@property (strong, nonatomic, readonly) UIImageView *staticPowerBar;
 
 @property (readonly) CGFloat blowingAngle;
 

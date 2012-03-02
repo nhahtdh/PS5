@@ -15,6 +15,7 @@
 @synthesize arrowView;
 @synthesize windSuckView;
 @synthesize powerBar;
+@synthesize staticPowerBar;
 
 -(GameObjectType) kGameObjectType {
     return kGameObjectWolf;
@@ -97,10 +98,17 @@
     [blowBreath setDelegate: self];
     [self.view addGestureRecognizer: blowBreath];
     
-    self.powerBar.image = [UIImage imageNamed: @"breath-bar.png"];
+    UIImage *breathBarImage = [UIImage imageNamed: @"breath-bar.png"];
+    self.powerBar.image = breathBarImage;
     [self.powerBar sizeToFit];
     self.powerBar.center = CGPointMake(0, self.imageView.image.size.height / 2);
     self.powerBar.hidden = YES; // Keep it hidden
+    
+    self.staticPowerBar.image = [UIImage imageNamed: @"breath-bar.png"];
+    self.staticPowerBar.alpha = 0.7;
+    [self.staticPowerBar sizeToFit];
+    self.staticPowerBar.center = CGPointMake(0, self.imageView.image.size.height / 2);
+    self.staticPowerBar.hidden = YES; // Keep it hidden
     
     NSArray *windSuckFrames = imageToFrames(@"windsuck.png", 4, 2);
     CGSize frameSize = ((UIImage*) [windSuckFrames objectAtIndex: 0]).size;
@@ -126,6 +134,9 @@
     
     self.powerBar.image = nil;
     self.powerBar.hidden = YES;
+    
+    self.staticPowerBar.image = nil;
+    self.staticPowerBar.hidden = YES;
     
     self.windSuckView.image = nil;
     self.windSuckView.animationImages = nil;
@@ -175,6 +186,9 @@
     if ([gesture state] == UIGestureRecognizerStateBegan) {
         power = 0.0;
         self.powerBar.hidden = NO;
+        self.staticPowerBar.hidden = NO;
+        
+        __counter = 0;
         powerTimer = [NSTimer scheduledTimerWithTimeInterval: 1 / 60. 
                                                       target: self 
                                                     selector: @selector(variesPower:) 
@@ -185,21 +199,33 @@
     if ([gesture state] == UIGestureRecognizerStateEnded) {
         [powerTimer invalidate];
         powerTimer = nil;
+        
+        DLog(@"Power: %f", power);
+        
         [self.imageView startAnimating];
         [self.windSuckView startAnimating];
         
+        // TODO: Add code to create game breath and launch it
+        
         self.powerBar.hidden = YES;
-        // self.windSuckView.hidden = YES;
+        self.staticPowerBar.hidden = YES;
     } else if ([gesture state] == UIGestureRecognizerStateCancelled) {
         DLog(@"WARNING: Gesture cancelled on %@", self);
         [powerTimer invalidate];
         powerTimer = nil;
+        
         self.powerBar.hidden = YES;
+        self.staticPowerBar.hidden = YES;
     }
 }
 
 - (void) variesPower: (NSTimer*) timer {
-    
+    power = (CGFloat) abs(__counter++ % (NUM_POWER_QUANTUM * 2) - NUM_POWER_QUANTUM) / NUM_POWER_QUANTUM;
+    self.powerBar.center = CGPointMake(0, self.imageView.image.size.height / 2 * (2 - power));
+    self.powerBar.bounds = CGRectMake(self.powerBar.bounds.origin.x, 
+                                      self.powerBar.bounds.origin.y,
+                                      self.powerBar.image.size.width,
+                                      self.powerBar.image.size.height * power);
 }
 
 #pragma mark - View life cycle
@@ -234,9 +260,18 @@
     
     // Set up image view for power bar
     powerBar = [[UIImageView alloc] init];
+    self.powerBar.clipsToBounds = YES;
+    self.powerBar.contentMode = UIViewContentModeBottom;
+    // self.powerBar.autoresizingMask = UIViewAutoresizingNone;
     self.powerBar.hidden = YES;
     
     [self.view addSubview: self.powerBar];
+    
+    // Set up image view for static power bar
+    staticPowerBar = [[UIImageView alloc] init];
+    self.staticPowerBar.hidden = YES;
+    
+    [self.view insertSubview: self.staticPowerBar belowSubview: self.powerBar];
     
     // Set up image view for wind sucking
     windSuckView = [[UIImageView alloc] init];

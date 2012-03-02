@@ -20,7 +20,7 @@
     return self;
 }
 
-+ (NSArray*) windBlow {
++ (NSArray*) windBlowImages {
     static NSArray* frames;
     if (frames == nil) {
         frames = imageToFrames(@"windblow.png", 4, 1);
@@ -29,14 +29,6 @@
 }
 
 /*
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
 
 - (void)didReceiveMemoryWarning
 {
@@ -46,6 +38,11 @@
     // Release any cached data, images, etc that aren't in use.
 }
  */
+
+- (CGSize) defaultImageSize {
+    static const CGSize size = CGSizeMake(110, 104);
+    return size;
+}
 
 - (CGSize) defaultIconSize {
     // NOTE: This function is not defined for GameBreath
@@ -80,16 +77,16 @@
 
 #pragma mark - View lifecycle
 
-/*
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView
-{
-}
-*/
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.imageView.image = [[GameBreath windBlowImages] objectAtIndex: 0];
+    [self.imageView sizeToFit];
+    self.imageView.animationImages = [GameBreath windBlowImages];
+    self.imageView.animationRepeatCount = 0; // No limit
+    self.imageView.animationDuration = 0.5;
+    
 }
 
 - (void)viewDidUnload
@@ -97,12 +94,6 @@
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    // Return YES for supported orientations
-	return YES;
 }
 
 @end
