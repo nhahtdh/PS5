@@ -92,12 +92,9 @@
 }
 
 - (void) addGameObjectToPalette:(GameObject *)gameObject {
-    [gameObject resetToPaletteIcon];
-    
     [self.gameObjectsInPalette addObject: gameObject];
     
     [self addChildViewController: gameObject];
-    
 }
 
 - (void)removeGameObjectFromPalette: (GameObject*) gameObject {
@@ -121,9 +118,13 @@
     CGPoint center = CGPointMake(padding, palette.bounds.size.height / 2);
     
     for (GameObject* object in self.gameObjectsInPalette) {
+        assert(object.kGameObjectState != kGameObjectStateOnGameArea);
+        
         if (object.kGameObjectState == kGameObjectStateOnPalette) {
-            [object.view setCenter: CGPointMake(center.x + object.defaultIconSize.width / 2, center.y)];
             [palette addSubview: object.view];
+            
+            [object resetToPaletteIcon];
+            [object.view setCenter: CGPointMake(center.x + object.defaultIconSize.width / 2, center.y)];
             
             center = CGPointMake(center.x + object.defaultIconSize.width + padding, center.y);
         }
@@ -160,9 +161,6 @@
     CGFloat groundY = gameArea.frame.size.height - groundHeight;
     CGFloat backgroundY = groundY - backgroundHeight;
     
-    // The frame property holds the position and size of the views
-    // The CGRectMake methods arguments are : x position, y position, width,
-    // height
     background.frame = CGRectMake(0, backgroundY, backgroundWidth, backgroundHeight);
     ground.frame = CGRectMake(0, groundY, groundWidth, groundHeight);
     

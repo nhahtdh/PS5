@@ -28,18 +28,6 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     self.kGameBlockType = (GameBlockType) ((self.kGameBlockType + 1) % 4);
 }
 
-- (id) init {
-    if (self = [super init]) {
-        tap = [[UITapGestureRecognizer alloc] initWithTarget: self action: @selector(changeBlockType:)];
-        [tap setNumberOfTapsRequired: 1];
-        [tap setNumberOfTouchesRequired: 1];
-        
-        [self.view addGestureRecognizer: tap];
-    }
-    
-    return self;
-}
-
 - (b2BodyDef) bodyDef {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
@@ -136,12 +124,7 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     return self.kGameObjectState == kGameObjectStateOnGameArea;
 }
 
-- (void) changeBlockType:(UIGestureRecognizer *)gesture {
-    DLog(@"Tap");
-    if (![gesture isMemberOfClass: [UITapGestureRecognizer class]]) {
-        DLog(@"WARNING: Something is wrong here");
-    }
-    
+- (void) changeBlockType:(UITapGestureRecognizer *)gesture {
     [self setNextBlockType];
     [imageView setImage: [GameBlock getImage: self.kGameBlockType]];
 }
@@ -151,9 +134,15 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 - (void) viewDidLoad {
     [super viewDidLoad];
     
-    DLog(@"Block viewDidLoad called.");
+    // Set up extra gesture
+    tap = [[UITapGestureRecognizer alloc] initWithTarget: self action: @selector(changeBlockType:)];
+    [tap setNumberOfTapsRequired: 1];
+    [tap setNumberOfTouchesRequired: 1];
     
-    [super.view setAutoresizesSubviews:YES];
+    [self.view addGestureRecognizer: tap];
+    
+    // Set up view
+    [self.view setAutoresizesSubviews:YES];
     
     self.kGameBlockType = kGameBlockStraw;
     

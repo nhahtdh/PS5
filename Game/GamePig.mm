@@ -85,8 +85,7 @@
 - (void) viewDidLoad {
     [super viewDidLoad];
     
-    DLog(@"Pig viewDidLoad called.");
-    
+    // Set up view
     [self.view setAutoresizesSubviews: YES];
     
     UIImage *pigImage = [GamePig getImage];

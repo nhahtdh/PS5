@@ -64,26 +64,6 @@
 -(id) init {
     DLog(@"GameObject init is called: %@", self);
     if (self = [super init]) {
-        // TODO: Should this be specific to each of the object? To save space and probably make more sense
-        // since not all objects can be placed in the game area anyway.
-        pan = [[UIPanGestureRecognizer alloc] initWithTarget: self action: @selector(translate:)];
-        [pan setMinimumNumberOfTouches: (NSUInteger) 1];
-        [pan setMaximumNumberOfTouches: (NSUInteger) 1];
-        [pan setDelaysTouchesBegan: 0.1];
-        [pan setDelegate: self];
-        
-        pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action: @selector(zoom:)];
-        [pinch setDelaysTouchesBegan: 0.1];
-        [pinch setDelegate: self];
-        
-        rotate = [[UIRotationGestureRecognizer alloc] initWithTarget:self action: @selector(rotate:)];
-        [rotate setDelaysTouchesBegan: 0.1];
-        [rotate setDelegate: self];
-        
-        [self.view addGestureRecognizer: pinch];
-        [self.view addGestureRecognizer: rotate];
-        [self.view addGestureRecognizer: pan];
-        
         angle_ = 0.0;
         scale_ = 1.0;
     }
@@ -155,6 +135,32 @@
     [self.view setTransform: CGAffineTransformScale(CGAffineTransformMakeRotation(self.angle), self.scale, self.scale)];
 }
 
+-(void) viewDidLoad {
+    [super viewDidLoad];
+    
+    DLog(@"%@ viewDidLoad called", [self class]);
+    
+    // TODO: Should this be specific to each of the object? To save space and probably make more sense
+    // since not all objects can be placed in the game area anyway.
+    pan = [[UIPanGestureRecognizer alloc] initWithTarget: self action: @selector(translate:)];
+    [pan setMinimumNumberOfTouches: (NSUInteger) 1];
+    [pan setMaximumNumberOfTouches: (NSUInteger) 1];
+    [pan setDelaysTouchesBegan: 0.1];
+    [pan setDelegate: self];
+    
+    pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action: @selector(zoom:)];
+    [pinch setDelaysTouchesBegan: 0.1];
+    [pinch setDelegate: self];
+    
+    rotate = [[UIRotationGestureRecognizer alloc] initWithTarget:self action: @selector(rotate:)];
+    [rotate setDelaysTouchesBegan: 0.1];
+    [rotate setDelegate: self];
+    
+    [self.view addGestureRecognizer: pan];
+    [self.view addGestureRecognizer: pinch];
+    [self.view addGestureRecognizer: rotate];
+}
+
 #pragma mark Gestures
 
 -(BOOL) canTranslate {
@@ -220,14 +226,15 @@
             } 
             // The object lands outside game area
             else {
+                DLog(@"Center (%f, %f) is outside game area", centerRelativeToGameArea.x, centerRelativeToGameArea.y);
                 switch (self.kGameObjectState) {
                     case kGameObjectStateTransitFromPalette:
                         kGameObjectState_ = kGameObjectStateOnPalette;
-                        [self resetToPaletteIcon];
                         [gameViewController redrawPalette];
                         break;
                     case kGameObjectStateOnGameArea:
                         if (self.kGameObjectType == kGameObjectPig || self.kGameObjectType == kGameObjectWolf) {
+                            kGameObjectState_ = kGameObjectStateOnPalette;
                             [gameViewController addGameObjectToPalette: self];
                             [gameViewController removeGameObjectFromGameArea: self];
                             [gameViewController redrawPalette];

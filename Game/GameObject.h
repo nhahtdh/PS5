@@ -7,7 +7,7 @@
 #import <Box2D/Box2D.h>
 #import "Utilities.h"
 
-typedef enum {kGameObjectWolf, kGameObjectPig, kGameObjectBlock} GameObjectType;
+typedef enum {kGameObjectWolf, kGameObjectPig, kGameObjectBlock, kGameObjectBreath} GameObjectType;
 
 typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGameObjectStateOnGameArea} GameObjectState;
 
