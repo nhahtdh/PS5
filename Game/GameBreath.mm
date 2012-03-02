@@ -59,8 +59,8 @@
 
 - (b2Shape*) shape {
     b2CircleShape *shape = new b2CircleShape();
-    // TODO: Fill in the value
-    // shape->m_radius = ;
+    // Note: The value is slightly less than the defaultImageSize to account for blank spaces
+    shape->m_radius = pixelToMeter(self.defaultImageSize.height * 0.9);
     
     return shape;
 }

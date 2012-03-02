@@ -262,7 +262,6 @@
     powerBar = [[UIImageView alloc] init];
     self.powerBar.clipsToBounds = YES;
     self.powerBar.contentMode = UIViewContentModeBottom;
-    // self.powerBar.autoresizingMask = UIViewAutoresizingNone;
     self.powerBar.hidden = YES;
     
     [self.view addSubview: self.powerBar];
@@ -285,10 +284,12 @@
 - (void)viewDidUnload {
     [super viewDidUnload];
     
-    // TODO: Not too sure about these
-    imageView = nil;
+    // TODO: Not too sure about how to take care of memory warning.
+    // imageView = nil;
     degreeView = nil;
     arrowView = nil;
+    powerBar = nil;
+    staticPowerBar = nil;
     windSuckView = nil;
 }
 

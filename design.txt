@@ -1,0 +1,15 @@
+Problem 5:
+
+
+
+Bonus Problem:
+a. 
+b. I have never written or designed a game, so I don't know how things should be organized. I also have never written a UI intensive program such as Huff n Puff. I did a lot of trial and error on the design of the program (the real connection between the components is much more complicated and messed up than described in diagrams). The result is the code is more manageable after every refactor, but the interface between the components is quite patchy.
+
+I understand a good design leads to better coding efficiency. However, without the knowledge of how the components would interact with each other, it is pretty hard to come up with a good design (the components are there, but the interface is hard to define).
+
+c. Nope. The process is part of learning.
+
+d.
+Problem set 3 is quite a big jump and I had a lot of problem with it. Probably push a bit of the content to problem set 2.
+Problem set 4 can be good or bad depending on how it is done. I just follow the instruction for the game engine, so not much is learnt. For designing part, I follow minimalist approach in my design: I designs a game engine that is extensible for requirement in PS5, but no more than that. As a result, the design doesn't apply for PS5 when I plug in external game engine.
