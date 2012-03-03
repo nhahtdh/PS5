@@ -49,22 +49,22 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     
     switch (self.kGameBlockType) {
         case kGameBlockStraw:
-            fixtureDef.density = 1.75;
+            fixtureDef.density = 1.5;
             fixtureDef.friction = 0.7;
             fixtureDef.restitution = 0.15;
             break;
         case kGameBlockWood:
-            fixtureDef.density = 5;
+            fixtureDef.density = 3;
             fixtureDef.friction = 0.6;
             fixtureDef.restitution = 0.3;
             break;
         case kGameBlockIron:
-            fixtureDef.density = 12;
+            fixtureDef.density = 6;
             fixtureDef.friction = 0.4;
             fixtureDef.restitution = 0.1;
             break;
         case kGameBlockStone:
-            fixtureDef.density = 16;
+            fixtureDef.density = 8;
             fixtureDef.friction = 0.5;
             fixtureDef.restitution = 0.1;
             break;
@@ -108,6 +108,12 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     [super setUpForBuilder];
     
     tap.enabled = YES;
+}
+
+- (void) applyDamage:(const b2ContactImpulse *)impulses {
+    [super applyDamage: impulses];
+    
+    DLog(@"Accummulated damage: %@ %f", self.kGameBlockType, damage);
 }
 
 #pragma mark Gestures

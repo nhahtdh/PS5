@@ -24,10 +24,12 @@ typedef enum {kGameBlockStraw, kGameBlockWood, kGameBlockIron, kGameBlockStone} 
 // REQUIRES: game in designer mode
 // EFFECTS: the object changes block type
 
-#pragma mark Gameplay mechanics
+#pragma mark Game mechanics
 
 - (void) setUpForPlay;
 
 - (void) setUpForBuilder;
+
+- (void) applyDamage:(const b2ContactImpulse *)impulses;
 
 @end

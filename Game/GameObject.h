@@ -34,6 +34,8 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
     
     // In-play attributes
     b2Body *body;
+    CGFloat damage;
+    NSInteger hitPoints;
 }
 
 + (GameObject*)GameObjectCreate: (GameObjectType) kGameObjectType;
@@ -66,10 +68,13 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
 // NOTE: Every time the shape is retrieved, the caller is responsible for destroying the object
 @property (nonatomic, readonly) b2FixtureDef fixtureDef;
 
-#pragma mark Gameplay mechanics
+#pragma mark Game mechanics
 
-@property b2Body *body;
+@property (readwrite) b2Body *body;
 @property (readonly) CGAffineTransform baseTransform;
+@property (nonatomic, readonly) NSInteger hitPoints;
+// The amount of hit points (or lives) a game object has. Subclasses may use this attribute in
+// different ways, but it should convey the same meaning.
 
 - (void)setUpForPlay;
 

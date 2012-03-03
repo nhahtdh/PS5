@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <Box2D/Box2D.h>
 #import "GameObject.h"
+#import "ContactListener.mm"
 
 typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
 
@@ -18,6 +19,7 @@ typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
 @interface GameViewController : UIViewController {
     NSTimer *timer;
     b2World *gameWorld;
+    ContactListener *contactListener;
     
     GameMode kGameMode;
     
@@ -28,10 +30,10 @@ typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
 @property (readonly) GameMode kGameMode;
 
 @property (strong, readonly) NSMutableArray *gameObjectsInGameArea;
-@property (strong) IBOutlet UIScrollView *gameArea;
+@property (strong, nonatomic) IBOutlet UIScrollView *gameArea;
 
 @property (strong, readonly) NSMutableArray *gameObjectsInPalette;
-@property (strong) IBOutlet UIView *palette;
+@property (strong, nonatomic) IBOutlet UIView *palette;
 
 - (void) addGameObjectToPalette: (GameObject*) gameObject;
 

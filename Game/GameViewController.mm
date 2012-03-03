@@ -350,9 +350,15 @@
         
         [o setUpForPlay];
     }
+    
+    contactListener = new ContactListener();
+    gameWorld->SetContactListener(contactListener);
 }
 
 - (void) tearDownAfterPlay {
+    gameWorld->SetContactListener(NULL);
+    contactListener->~ContactListener();
+    
     for (GameObject *o in self.gameObjectsInGameArea) {
         // An object may be removed from the game world
         // during game play

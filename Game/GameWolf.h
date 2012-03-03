@@ -39,6 +39,8 @@
     UILongPressGestureRecognizer *blowBreath;
 }
 
+#pragma mark In-game effects
+
 @property (strong, nonatomic, readonly) UIImageView *degreeView;
 @property (strong, nonatomic, readonly) UIImageView *arrowView;
 @property (strong, nonatomic, readonly) UIImageView *windSuckView;
@@ -47,14 +49,16 @@
 
 @property (readonly) CGFloat blowingAngle;
 
+- (void) changeBlowingAngle: (UIOneFingerRotationGestureRecognizer*) gesture;
+
+- (void) blowBreath: (UITapGestureRecognizer*) gesture;
+
+#pragma mark Game mechanics
+
 - (void) setUpForPlay;
 
 - (void) setUpForBuilder;
 
-// - (void) variesPower: (NSTimer*) timer;
-
-- (void) changeBlowingAngle: (UIOneFingerRotationGestureRecognizer*) gesture;
-
-- (void) blowBreath: (UITapGestureRecognizer*) gesture;
+// - (void) applyDamage:(const b2ContactImpulse *)impulses;
 
 @end

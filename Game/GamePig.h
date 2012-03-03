@@ -10,4 +10,10 @@
 
 @interface GamePig : GameObject
 
+- (void) setUpForPlay;
+
+- (void) setUpForBuilder;
+
+// - (void) applyDamage:(const b2ContactImpulse *)impulses;
+
 @end

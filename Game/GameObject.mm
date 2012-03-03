@@ -20,6 +20,7 @@
 
 @synthesize body;
 @dynamic bodyDef;
+@synthesize hitPoints;
 
 - (b2Shape*) shape {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
@@ -117,6 +118,15 @@
     [self.view setCenter: CGPointMake(meterToPixel(position.x), meterToPixel(position.y))];
 }
 
+- (void) applyDamage:(const b2ContactImpulse *)impulses {
+    
+    DLog(@"applyDamage on %@: %f %f", self, impulses->normalImpulses[0] / self.body->GetMass(), impulses->normalImpulses[1] / self.body->GetMass());
+    damage += impulses->normalImpulses[0] / self.body->GetMass() + impulses->normalImpulses[1] / self.body->GetMass();
+    
+    DLog(@"Accummulated damage: %@ %f", self, damage);
+    // hitPoints += impulses->normalImpulses[0] + 
+}
+
 - (void) setUpForPlay {
     pan.enabled = NO;
     rotate.enabled = NO;
@@ -134,6 +144,8 @@
     self.view.center = self.center;
     [self.view setTransform: CGAffineTransformScale(CGAffineTransformMakeRotation(self.angle), self.scale, self.scale)];
 }
+
+#pragma mark View lifecycle
 
 -(void) viewDidLoad {
     [super viewDidLoad];
@@ -223,10 +235,14 @@
                     kGameObjectState_ = kGameObjectStateOnGameArea;
                     [gameViewController redrawPalette];
                 }
+                
             } 
             // The object lands outside game area
             else {
                 DLog(@"Center (%f, %f) is outside game area", centerRelativeToGameArea.x, centerRelativeToGameArea.y);
+                [UIView beginAnimations: @"Object lands outside gamearea" context: nil];
+                [UIView setAnimationDuration: 0.2];
+                
                 switch (self.kGameObjectState) {
                     case kGameObjectStateTransitFromPalette:
                         kGameObjectState_ = kGameObjectStateOnPalette;
@@ -248,6 +264,8 @@
                         @throw [NSException exceptionWithName: NSInternalInconsistencyException
                                                        reason: @"Impossible state for a moving object" userInfo:nil];
                 }
+                
+                [UIView commitAnimations];
             }
         } else if ([gesture state] == UIGestureRecognizerStateCancelled) {
             // This case happens when the notification bar is activated.
