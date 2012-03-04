@@ -6,12 +6,14 @@
 #import <UIKit/UIKit.h>
 #import <Box2D/Box2D.h>
 #import "Utilities.h"
+#import "ContactListenerProtocol.h"
+#import "MovableObjectProtocol.h"
 
-typedef enum {kGameObjectWolf, kGameObjectPig, kGameObjectBlock, kGameObjectBreath} GameObjectType;
+typedef enum {kGameObjectWolf, kGameObjectPig, kGameObjectBlock} GameObjectType;
 
 typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGameObjectStateOnGameArea} GameObjectState;
 
-@interface GameObject : UIViewController <UIGestureRecognizerDelegate> {
+@interface GameObject : UIViewController <UIGestureRecognizerDelegate, ContactListenerProtocol, MovableObjectProtocol> {
     GameObjectState kGameObjectState;
     
     UIImageView* imageView;
@@ -20,9 +22,9 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
     CGPoint center;
     CGFloat angle;
     CGFloat scale;
-    CGAffineTransform baseTransform;
     
     // UI Interaction
+    // TODO: This is possibly bloaty to place in GameObject
     UIPanGestureRecognizer *pan;
     CGPoint __startingPosition;
     
@@ -50,8 +52,6 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
 
 - (void)resetToPaletteIcon;
 
-- (void)resizeDefault;
-
 #pragma mark GameObject properties
 
 @property (nonatomic, readonly) GameObjectType kGameObjectType;
@@ -71,7 +71,6 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
 #pragma mark Game mechanics
 
 @property (readwrite) b2Body *body;
-@property (readonly) CGAffineTransform baseTransform;
 @property (nonatomic, readonly) NSInteger hitPoints;
 // The amount of hit points (or lives) a game object has. Subclasses may use this attribute in
 // different ways, but it should convey the same meaning.
@@ -91,21 +90,5 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
 @property (nonatomic, readonly) BOOL canTranslate;
 @property (nonatomic, readonly) BOOL canRotate;
 @property (nonatomic, readonly) BOOL canZoom;
-
-- (void)translate:(UIPanGestureRecognizer *)gesture;
-// MODIFIES: object model (coordinates)
-// REQUIRES: game in designer mode
-// EFFECTS: the user drags around the object with one finger
-//          if the object is in the palette, it will be moved in the game area
-
-- (void)rotate:(UIRotationGestureRecognizer *)gesture;
-// MODIFIES: object model (rotation)
-// REQUIRES: game in designer mode, object in game area
-// EFFECTS: the object is rotated with a two-finger rotation gesture
-
-- (void)zoom:(UIPinchGestureRecognizer *)gesture;
-// MODIFIES: object model (size)
-// REQUIRES: game in designer mode, object in game area
-// EFFECTS: the object is scaled up/down with a pinch gesture
 
 @end

@@ -9,12 +9,16 @@
 #import <UIKit/UIKit.h>
 #import <Box2D/Box2D.h>
 #import "GameObject.h"
+#import "GameBreath.h"
 #import "ContactListener.mm"
 
 typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
 
 #define UPDATES_PER_SECOND 60.
 #define DEFAULT_TIME_STEP (1 / 60.)
+
+#define DEFAULT_VELOCITY_ITERATIONS 8
+#define DEFAULT_POSITION_ITERATIONS 6
 
 @interface GameViewController : UIViewController {
     NSTimer *timer;
@@ -43,9 +47,9 @@ typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
 
 - (void) removeGameObjectFromGameArea: (GameObject*) gameObject;
 
-// - (void) hidePalette;
-
 - (void) redrawPalette;
+
+- (void) createBreath: (b2Vec2) power from: (b2Vec2) position;
 
 #pragma mark UIButton
 

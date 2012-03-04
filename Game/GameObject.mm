@@ -8,6 +8,7 @@
 #import "GameWolf.h"
 #import "GamePig.h"
 #import "GameBlock.h"
+#import "GameBreath.h"
 
 @implementation GameObject
 
@@ -19,23 +20,22 @@
 @synthesize imageView;
 
 @synthesize body;
-@dynamic bodyDef;
-@synthesize hitPoints;
 
-- (b2Shape*) shape {
+- (b2BodyDef) bodyDef {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
     assert(self.kGameObjectState == kGameObjectStateOnGameArea);
     
-    b2PolygonShape *shape = new b2PolygonShape();
-    shape->SetAsBox(pixelToMeter(self.scale * self.defaultImageSize.width) / 2., 
-                    pixelToMeter(self.scale * self.defaultImageSize.height) / 2.);
-    
-    return shape;
+    b2BodyDef bodyDef;
+    bodyDef.position.Set(pixelToMeter(self.view.center.x), pixelToMeter(self.view.center.y));
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.angle = self.angle;
+    return bodyDef;
 }
 
+@dynamic shape;
 @dynamic fixtureDef;
-@synthesize baseTransform;
+@synthesize hitPoints;
 
 @synthesize center = center_;
 @synthesize angle = angle_;
@@ -81,7 +81,7 @@
     return self;
 }
 
--(void) resize:(CGSize)sizes {
+- (void) resize:(CGSize)sizes {
     [self.imageView setFrame: CGRectMake(self.imageView.frame.origin.x, 
                                          self.imageView.frame.origin.y,
                                          sizes.width,
@@ -106,34 +106,15 @@
     scale_ = 1.0;
 }
 
-- (void) resizeDefault {
-    [self resize: self.defaultImageSize];
-}
-
-- (void) updateView {
-    assert(body != nil);
-    [self.view setTransform: CGAffineTransformRotate(self.baseTransform, body->GetAngle())];
-    
-    const b2Vec2 &position = body->GetPosition();
-    [self.view setCenter: CGPointMake(meterToPixel(position.x), meterToPixel(position.y))];
-}
-
-- (void) applyDamage:(const b2ContactImpulse *)impulses {
-    
-    DLog(@"applyDamage on %@: %f %f", self, impulses->normalImpulses[0] / self.body->GetMass(), impulses->normalImpulses[1] / self.body->GetMass());
-    damage += impulses->normalImpulses[0] / self.body->GetMass() + impulses->normalImpulses[1] / self.body->GetMass();
-    
-    DLog(@"Accummulated damage: %@ %f", self, damage);
-    // hitPoints += impulses->normalImpulses[0] + 
-}
-
 - (void) setUpForPlay {
     pan.enabled = NO;
     rotate.enabled = NO;
     pinch.enabled = NO;
     
     center_ = self.view.center;
-    baseTransform = CGAffineTransformMakeScale(self.scale, self.scale);
+    
+    // TODO: Remove this!
+    damage = 0;
 }
 
 - (void) setUpForBuilder {
@@ -143,6 +124,25 @@
     
     self.view.center = self.center;
     [self.view setTransform: CGAffineTransformScale(CGAffineTransformMakeRotation(self.angle), self.scale, self.scale)];
+}
+
+- (void) applyDamage:(const b2ContactImpulse *)impulses {
+    
+    // DLog(@"applyDamage on %@: %f %f", self, impulses->normalImpulses[0] / self.body->GetMass(), impulses->normalImpulses[1] / self.body->GetMass());
+    CGFloat curr = impulses->normalImpulses[0] / self.body->GetMass() + impulses->normalImpulses[1] / self.body->GetMass();
+    if (curr > 1)
+        damage += curr;
+    
+    // DLog(@"Accummulated damage: %@ %f", self, damage);
+    // hitPoints += impulses->normalImpulses[0] + 
+}
+
+- (void) updateView {
+    assert(body != nil);
+    [self.view setTransform: CGAffineTransformRotate(CGAffineTransformMakeScale(self.scale, self.scale), body->GetAngle())];
+    
+    const b2Vec2 &position = body->GetPosition();
+    [self.view setCenter: CGPointMake(meterToPixel(position.x), meterToPixel(position.y))];
 }
 
 #pragma mark View lifecycle
@@ -188,6 +188,11 @@
 }
 
 -(void) translate:(UIPanGestureRecognizer *)gesture {
+    // MODIFIES: object model (position)
+    // REQUIRES: game in designer mode
+    // EFFECTS: the user drags around the object with one finger
+    //          if the object is in the palette, it will be moved in the game area
+    
     DLog(@"Pan gesture detected on %@", self);
     
     if ([self canTranslate]) {
@@ -203,7 +208,7 @@
             
             // Scale the object to default size and set state if from the palette
             if (self.kGameObjectState == kGameObjectStateOnPalette) {
-                [self resizeDefault];
+                [self resize: self.defaultImageSize];
                 kGameObjectState_ = kGameObjectStateTransitFromPalette;
             }
         }
@@ -288,6 +293,10 @@
 }
 
 -(void) zoom:(UIPinchGestureRecognizer *)gesture {
+    // MODIFIES: object model (scale)
+    // REQUIRES: game in designer mode, object in game area
+    // EFFECTS: the object is scaled up/down with a pinch gesture
+    
     DLog(@"Pinch gesture detected on %@ object", [self class]);
     if ([self canZoom]) {
         DLog(@"Scale: %f", [gesture scale]);
@@ -317,6 +326,10 @@
 }
 
 -(void) rotate:(UIRotationGestureRecognizer *)gesture {
+    // MODIFIES: object model (rotation)
+    // REQUIRES: game in designer mode, object in game area
+    // EFFECTS: the object is rotated with a two-finger rotation gesture
+    
     DLog(@"Rotation gesture detected on %@ object", [self class]);
     if ([self canRotate]) {
         if ([gesture state] == UIGestureRecognizerStateBegan) {

@@ -372,11 +372,7 @@
 }
 
 - (void) updateView: (NSTimer*) timer {
-    // DLog(@"updateView");
-    
-    const int velocityIterations = 8;
-    const int positionIterations = 6;
-    gameWorld->Step(DEFAULT_TIME_STEP, velocityIterations, positionIterations);
+    gameWorld->Step(DEFAULT_TIME_STEP, DEFAULT_VELOCITY_ITERATIONS, DEFAULT_POSITION_ITERATIONS);
     
     for (GameObject *o in self.gameObjectsInGameArea) {
         if (o.body)
@@ -384,6 +380,27 @@
     }
     
     gameWorld->ClearForces();
+}
+
+- (void) createBreath:(b2Vec2)power from:(b2Vec2)position {
+    GameBreath *breath = [[GameBreath alloc] initWithPower: power from: position];
+    const b2BodyDef &bodyDef = breath.bodyDef;
+    b2Shape *shape = breath.shape;
+    const b2FixtureDef &noShapeFixtureDef = breath.fixtureDef;
+    
+    b2FixtureDef fixtureDef(noShapeFixtureDef);
+    fixtureDef.shape = shape;
+    
+    breath.body = gameWorld->CreateBody(&bodyDef);
+    breath.body->CreateFixture(&fixtureDef);
+    breath.body->SetUserData((__bridge void*) breath);
+    
+    delete shape;
+    breath.body->ApplyForceToCenter(power);
+}
+
+- (void) destroyBreath: (GameBreath*) gameBreath {
+    
 }
 
 - (IBAction)playButtonPressed:(id)sender {

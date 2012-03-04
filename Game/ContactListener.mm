@@ -7,19 +7,19 @@
 //
 
 #include <Box2D/Box2D.h>
-#include "GameObject.h"
+#include "ContactListenerProtocol.h"
 
 class ContactListener: public b2ContactListener {
 public:
     void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) {
 		id userDataA = (__bridge id) contact->GetFixtureA()->GetBody()->GetUserData();
-        if (userDataA && [userDataA isKindOfClass: [GameObject class]]) {
-            [(GameObject*) userDataA applyDamage: impulse];
+        if (userDataA && [userDataA conformsToProtocol: @protocol(ContactListenerProtocol)]) {
+            [userDataA applyDamage: impulse];
         }
         
         id userDataB = (__bridge id) contact->GetFixtureB()->GetBody()->GetUserData();
-        if (userDataB && [userDataB isKindOfClass: [GameObject class]]) {
-            [(GameObject*) userDataB applyDamage: impulse];
+        if (userDataB && [userDataB conformsToProtocol: @protocol(ContactListenerProtocol)]) {
+            [userDataB applyDamage: impulse];
         }
 	}
 };

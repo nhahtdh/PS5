@@ -7,18 +7,12 @@
 //
 
 #import "GameBreath.h"
+#import "Utilities.h"
 
 @implementation GameBreath
 
-@synthesize kGameObjectState = kGameObjectState_;
-
-- (id) init {
-    if (self = [super init]) {
-        kGameObjectState_ = kGameObjectStateOnGameArea;
-    }
-    
-    return self;
-}
+@synthesize imageView;
+@synthesize body;
 
 + (NSArray*) windBlowImages {
     static NSArray* frames;
@@ -28,32 +22,29 @@
     return frames;
 }
 
-/*
-
-- (void)didReceiveMemoryWarning
-{
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc that aren't in use.
-}
- */
-
 - (CGSize) defaultImageSize {
     static const CGSize size = CGSizeMake(110, 104);
     return size;
 }
 
-- (CGSize) defaultIconSize {
-    // NOTE: This function is not defined for GameBreath
-    assert(0);
+- (id) initWithPower: (b2Vec2)pow from: (b2Vec2)pos {
+    if (self = [super init]) {
+        power = pow;
+        position = pos;
+    }
+    
+    return self;
 }
 
+#pragma mark - Game properties
+
 - (b2BodyDef) bodyDef {
+    // REQUIRES: This function should only be called after it is confirmed that the game should start.
+    // The object should also be properly inside the game area.
+    
     b2BodyDef bodyDef;
-    bodyDef.position.Set(pixelToMeter(self.view.center.x), pixelToMeter(self.view.center.y));
+    bodyDef.position = position;
     bodyDef.type = b2_dynamicBody;
-    bodyDef.angle = self.angle;
     return bodyDef;
 }
 
@@ -75,23 +66,40 @@
     return fixtureDef;
 }
 
+#pragma mark - Game mechanics
+
+- (void) applyDamage:(const b2ContactImpulse *)impulses {}
+
+/*
+- (void) setUpForPlay {
+    [super setUpForPlay];
+    
+    
+    
+    // body->ApplyForce(<#const b2Vec2 &force#>, <#const b2Vec2 &point#>)
+}
+ */
+
 #pragma mark - View lifecycle
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     self.imageView.image = [[GameBreath windBlowImages] objectAtIndex: 0];
     [self.imageView sizeToFit];
     self.imageView.animationImages = [GameBreath windBlowImages];
     self.imageView.animationRepeatCount = 0; // No limit
     self.imageView.animationDuration = 0.5;
+    self.imageView.center = CGPointMake(meterToPixel(position.x), meterToPixel(position.y));
     
+    [self.view addSubview: self.imageView];
 }
 
 - (void)viewDidUnload
 {
     [super viewDidUnload];
+    
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
 }

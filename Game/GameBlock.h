@@ -11,6 +11,8 @@
 
 typedef enum {kGameBlockStraw, kGameBlockWood, kGameBlockIron, kGameBlockStone} GameBlockType;
 
+#define NUM_BLOCK_TYPE 4
+
 @interface GameBlock : GameObject {
     GameBlockType kGameBlockType;
     
@@ -18,11 +20,6 @@ typedef enum {kGameBlockStraw, kGameBlockWood, kGameBlockIron, kGameBlockStone} 
 }
 
 @property (nonatomic, readwrite) GameBlockType kGameBlockType;
-
-- (void) changeBlockType: (UIGestureRecognizer*) gesture;
-// MODIFIES: object model (block type)
-// REQUIRES: game in designer mode
-// EFFECTS: the object changes block type
 
 #pragma mark Game mechanics
 

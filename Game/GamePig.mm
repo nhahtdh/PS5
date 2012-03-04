@@ -32,16 +32,16 @@
     return pigNormal;
 }
 
-- (b2BodyDef) bodyDef {
+- (b2Shape*) shape {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
     assert(self.kGameObjectState == kGameObjectStateOnGameArea);
     
-    b2BodyDef bodyDef;
-    bodyDef.position.Set(pixelToMeter(self.view.center.x), pixelToMeter(self.view.center.y));
-    bodyDef.type = b2_dynamicBody;
-    bodyDef.angle = self.angle;
-    return bodyDef;
+    b2PolygonShape *shape = new b2PolygonShape();
+    shape->SetAsBox(pixelToMeter(self.scale * self.defaultImageSize.width) / 2., 
+                    pixelToMeter(self.scale * self.defaultImageSize.height) / 2.);
+    
+    return shape;
 }
 
 - (b2FixtureDef) fixtureDef {

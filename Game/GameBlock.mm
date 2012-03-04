@@ -15,7 +15,7 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 @synthesize kGameBlockType;
 
 + (UIImage*) getImage: (GameBlockType) kGameBlockType {
-    static UIImage* gameBlockImages[4];
+    static UIImage* gameBlockImages[NUM_BLOCK_TYPE];
     if (gameBlockImages[kGameBlockType] == nil) {
         gameBlockImages[kGameBlockType] = [UIImage imageNamed: kBlockImageFileNames[kGameBlockType]];
     }
@@ -23,21 +23,16 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     return gameBlockImages[kGameBlockType];
 }
 
-- (void) setNextBlockType {
-    // TODO: This is kinda hard-coded: the number of types of blocks
-    self.kGameBlockType = (GameBlockType) ((self.kGameBlockType + 1) % 4);
-}
-
-- (b2BodyDef) bodyDef {
+- (b2Shape*) shape {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
     assert(self.kGameObjectState == kGameObjectStateOnGameArea);
     
-    b2BodyDef bodyDef;
-    bodyDef.position.Set(pixelToMeter(self.view.center.x), pixelToMeter(self.view.center.y));
-    bodyDef.type = b2_dynamicBody;
-    bodyDef.angle = self.angle;
-    return bodyDef;
+    b2PolygonShape *shape = new b2PolygonShape();
+    shape->SetAsBox(pixelToMeter(self.scale * self.defaultImageSize.width) / 2., 
+                    pixelToMeter(self.scale * self.defaultImageSize.height) / 2.);
+    
+    return shape;
 }
 
 - (b2FixtureDef) fixtureDef {
@@ -56,7 +51,7 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
         case kGameBlockWood:
             fixtureDef.density = 3;
             fixtureDef.friction = 0.6;
-            fixtureDef.restitution = 0.3;
+            fixtureDef.restitution = 0.2;
             break;
         case kGameBlockIron:
             fixtureDef.density = 6;
@@ -66,12 +61,12 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
         case kGameBlockStone:
             fixtureDef.density = 8;
             fixtureDef.friction = 0.5;
-            fixtureDef.restitution = 0.1;
+            fixtureDef.restitution = 0.05;
             break;
         default:
             @throw [NSException exceptionWithName: @"Not implemented exception"
-                                          reason: @"Unimplemented game block"
-                                        userInfo: nil];
+                                           reason: @"Unimplemented game block"
+                                         userInfo: nil];
     }
     
     return fixtureDef;
@@ -113,7 +108,7 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 - (void) applyDamage:(const b2ContactImpulse *)impulses {
     [super applyDamage: impulses];
     
-    DLog(@"Accummulated damage: %@ %f", self.kGameBlockType, damage);
+    // DLog(@"Accummulated damage: %d %f", self.kGameBlockType, damage);
 }
 
 #pragma mark Gestures
@@ -131,7 +126,11 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 }
 
 - (void) changeBlockType:(UITapGestureRecognizer *)gesture {
-    [self setNextBlockType];
+    // MODIFIES: object model (block type)
+    // REQUIRES: game in designer mode
+    // EFFECTS: the object changes block type
+    
+    self.kGameBlockType = (GameBlockType) ((self.kGameBlockType + 1) % NUM_BLOCK_TYPE);
     [imageView setImage: [GameBlock getImage: self.kGameBlockType]];
 }
 

@@ -8,7 +8,7 @@
 
 #import "Utilities.h"
 
-#define PIXEL_PER_METER 50.
+#define PIXEL_PER_METER 75.
 
 double meterToPixel(double x) {
     return x * PIXEL_PER_METER;

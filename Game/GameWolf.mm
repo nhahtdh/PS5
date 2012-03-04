@@ -7,10 +7,13 @@
 //
 
 #import "GameWolf.h"
+#import "GameViewController.h"
 
 @implementation GameWolf
 
+@synthesize power;
 @synthesize blowingAngle;
+
 @synthesize degreeView;
 @synthesize arrowView;
 @synthesize windSuckView;
@@ -42,17 +45,16 @@
     return wolfAliveFrames;
 }
 
-- (b2BodyDef) bodyDef {
+- (b2Shape*) shape {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
     assert(self.kGameObjectState == kGameObjectStateOnGameArea);
     
-    b2BodyDef bodyDef;
-    bodyDef.position.Set(pixelToMeter(self.view.center.x), pixelToMeter(self.view.center.y));
-    bodyDef.type = b2_dynamicBody;
-    bodyDef.angle = self.angle;
-
-    return bodyDef;
+    b2PolygonShape *shape = new b2PolygonShape();
+    shape->SetAsBox(pixelToMeter(self.scale * self.defaultImageSize.width) / 2., 
+                    pixelToMeter(self.scale * self.defaultImageSize.height) / 2.);
+    
+    return shape;
 }
 
 - (b2FixtureDef) fixtureDef {
@@ -62,9 +64,9 @@
     
     b2FixtureDef fixtureDef;
     
-    fixtureDef.density = 8;
+    fixtureDef.density = 4;
     fixtureDef.friction = 1.0;
-    fixtureDef.restitution = 0.2;
+    fixtureDef.restitution = 0.1;
     
     return fixtureDef;
 }
@@ -74,9 +76,10 @@
     
     self.arrowView.image = [UIImage imageNamed: @"direction-arrow.png"];
     [self.arrowView sizeToFit];
-    self.arrowView.center = CGPointMake(220, 30);
+    self.arrowView.center = [self.view convertPoint: CGPointMake(220, 30) toView: self.view.superview];
     self.arrowView.transform = CGAffineTransformMakeRotation(M_PI / 2 - DEFAULT_BLOWING_ANGLE);
     self.arrowView.hidden = NO;
+    [self.view.superview insertSubview: self.arrowView belowSubview: self.view];
     
     blowingAngle = DEFAULT_BLOWING_ANGLE;
     
@@ -88,15 +91,13 @@
     moveArrow = [[UIOneFingerRotationGestureRecognizer alloc] initWithTarget: self 
                                                                       action: @selector(changeBlowingAngle:)];
     [moveArrow setDelegate: self];
-    // Cannot add gesture recognizer to the subview!!!
-    [self.view addGestureRecognizer: moveArrow];
-    // [self.view sizeToFit];
+    [self.arrowView addGestureRecognizer: moveArrow];
     
     blowBreath = [[UILongPressGestureRecognizer alloc] initWithTarget:self action: @selector(blowBreath:)];
     [blowBreath setMinimumPressDuration: 0.5];
     [blowBreath setNumberOfTouchesRequired: 1];
     [blowBreath setDelegate: self];
-    [self.view addGestureRecognizer: blowBreath];
+    [self.imageView addGestureRecognizer: blowBreath];
     
     UIImage *breathBarImage = [UIImage imageNamed: @"breath-bar.png"];
     self.powerBar.image = breathBarImage;
@@ -126,10 +127,10 @@
     self.degreeView.image = nil;
     self.degreeView.hidden = YES;
     
-    [self.view removeGestureRecognizer: moveArrow];
+    [self.arrowView removeGestureRecognizer: moveArrow];
     moveArrow = nil;
     
-    [self.view removeGestureRecognizer: blowBreath];
+    [self.imageView removeGestureRecognizer: blowBreath];
     blowBreath = nil;
     
     self.powerBar.image = nil;
@@ -141,6 +142,13 @@
     self.windSuckView.image = nil;
     self.windSuckView.animationImages = nil;
     self.windSuckView.hidden = YES;
+}
+
+- (void) updateView {
+    [super updateView];
+    
+    self.arrowView.center = [self.view convertPoint: CGPointMake(220, 30) toView: self.view.superview];
+    self.arrowView.transform = CGAffineTransformMakeRotation(body->GetAngle() + (M_PI / 2 - self.blowingAngle));
 }
 
 #pragma mark Gestures
@@ -167,7 +175,7 @@
         self.arrowView.image = [UIImage imageNamed: @"direction-arrow-selected.png"];
     }
     
-    CGFloat finalAngle = MIN(MAX(self.blowingAngle + [gesture rotation], MIN_BLOWING_ANGLE), MAX_BLOWING_ANGLE);
+    CGFloat finalAngle = MIN(MAX(self.blowingAngle - [gesture rotation], MIN_BLOWING_ANGLE), MAX_BLOWING_ANGLE);
     CGFloat rotation = self.blowingAngle - finalAngle;
     blowingAngle = finalAngle;
     
@@ -206,6 +214,9 @@
         [self.windSuckView startAnimating];
         
         // TODO: Add code to create game breath and launch it
+        b2Vec2 powerVec(self.power * cos(-self.angle) * MAX_BLOWING_POWER, self.power * sin(-self.angle) * MAX_BLOWING_POWER);
+        b2Vec2 positionVec(pixelToMeter(self.arrowView.center.x), pixelToMeter(self.arrowView.center.y));
+        [(GameViewController*) self.parentViewController createBreath: powerVec from: positionVec];
         
         self.powerBar.hidden = YES;
         self.staticPowerBar.hidden = YES;
@@ -240,6 +251,7 @@
     UIImage *wolfImage = [[GameWolf getWolfImages] objectAtIndex: 0];
     imageView = [[UIImageView alloc] initWithImage: wolfImage];
     
+    self.imageView.userInteractionEnabled = YES;
     self.imageView.animationImages = [GameWolf getWolfImages];
     self.imageView.animationRepeatCount = 1;
     self.imageView.animationDuration = BLOWING_TIME;
@@ -255,8 +267,11 @@
     // Set up image view for the arrow
     arrowView = [[UIImageView alloc] init];
     self.arrowView.hidden = YES;
+    self.arrowView.userInteractionEnabled = YES;
+    self.arrowView.contentMode = UIViewContentModeTop;
+    // self.arrowView.autoresizingMask = UIViewAutoresizingNone;
     
-    [self.view addSubview: self.arrowView];
+    // [self.view addSubview: self.arrowView];
     
     // Set up image view for power bar
     powerBar = [[UIImageView alloc] init];

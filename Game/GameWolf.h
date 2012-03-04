@@ -9,10 +9,14 @@
 #import "GameObject.h"
 #import "UIOneFingerRotationGestureRecognizer.h"
 
-// When the arror is at horizontal position, the angle is 0
+// When the arror is at horizontal position, the angle is 0.
+// Moving the angle CCW will make the angle positive
 #define MAX_BLOWING_ANGLE (M_PI / 2)
 #define MIN_BLOWING_ANGLE (-M_PI / 3)
 #define DEFAULT_BLOWING_ANGLE (M_PI / 3)
+
+// Maximum blowing power in N(ewton)
+#define MAX_BLOWING_POWER 200
 
 // Every time the power varies, it will change by one quantum
 // This defines the number of quantum between 0% to 100% of the breath
@@ -47,7 +51,8 @@
 @property (strong, nonatomic, readonly) UIImageView *powerBar;
 @property (strong, nonatomic, readonly) UIImageView *staticPowerBar;
 
-@property (readonly) CGFloat blowingAngle;
+@property (nonatomic, readonly) CGFloat power;
+@property (nonatomic, readonly) CGFloat blowingAngle;
 
 - (void) changeBlowingAngle: (UIOneFingerRotationGestureRecognizer*) gesture;
 

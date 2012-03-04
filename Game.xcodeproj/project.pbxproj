@@ -118,6 +118,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		73B270231503186600B29679 /* ContactListenerProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactListenerProtocol.h; sourceTree = "<group>"; };
+		73B2702515031E6A00B29679 /* MovableObjectProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovableObjectProtocol.h; sourceTree = "<group>"; };
 		73B6F7D414F9F79C003E67E2 /* Box2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Box2D.h; sourceTree = "<group>"; };
 		73B6F7D514F9F79C003E67E2 /* Box2DConfig.cmake */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Box2DConfig.cmake; sourceTree = "<group>"; };
 		73B6F7D614F9F79C003E67E2 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
@@ -513,6 +515,8 @@
 				73B81F5214FEB79200B28195 /* ContactListener.mm */,
 				73BB000A150032FF0005BF62 /* UIOneFingerRotationGestureRecognizer.h */,
 				73BB000B150032FF0005BF62 /* UIOneFingerRotationGestureRecognizer.m */,
+				73B270231503186600B29679 /* ContactListenerProtocol.h */,
+				73B2702515031E6A00B29679 /* MovableObjectProtocol.h */,
 			);
 			path = Game;
 			sourceTree = "<group>";
