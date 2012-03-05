@@ -1,3 +1,95 @@
+Problem 2:
+
+b)
+I decided to use Open Source Physics Engine (Box2D) to avoid reinventing the wheels and enjoy the performance from Box2D (which is written in C++ and optimized).
+
+Design of Box2D:
+- It has b2World class, which represents the physic world. User of this class instantiate physical objects (b2Body) and simulate physics using Step(timeStep, numVelocityIterations, numPositionIterations) function.
+- By Box2D's definition, b2Body represent the whole body of an object, which is made of one or multiple parts (b2Fixture). The real physical parts that collides together will be fixture (e.g. blades of a fan), and the whole body (the fan as a whole) will move after the collision.
+- b2Body will define the position of the body, angular rotation of the body and whether the body is static (e.g. ground) or dynamic (e.g. blocks).
+- b2Fixture defines the physical property of the part of the body, such as restitution coefficient, friction coefficient, density (per meter square) and the shape (b2Shape) of the body. This means one body can have different parts with different physical property (not really necessary for PS5, though).
+- Box2D allows user to store a pointer to the user data that is associated with the body or the fixture. For PS5, I stored a pointer to the corresponding GameObject in the body (except for the ground).
+- b2Shape is the base class for shapes. There are a number of shapes, which includes circle and polygon. Collision is handled separately from the shape definition and is split into several files for different method and different stages of the collision.
+- Box2D also allow us to register listener. The most notable being b2ContactListener which allows us to extract impulse of the collision and/or control behavior of the collision.
+
+The design of Box2D is more modular and more complex than the physic engine done in PS4, since it is designed for complex simulation (e.g. it is possible to model a spinning table fan whose blade collides with an obstruction, or model a billiard table) and to cater for many purposes. However, there are quite a number of points that I can learn from the design of Box2D: separate physical attributes from shape, so shape can be extended; separate different stages of the collision algorithm and use observer pattern to obtain collision data.
+
+c)
+
+d) I choose to use NSTimer to implement starting the game because it is the simplest to configure to fire a function to update the screen every 1/60 of a second, automatically start and easy to stop.
+
+NSTimer doesn't seem to create new thread, so the program may not utilize the power of 2 cores in iPad.
+
+NSThread would be my second choice. It allows some work to be pushed to a different thread and utilize both cores of the iPad. I can also obtain the NSRunLoop from the NSThread and set up the NSTimer according to the specs. The implementation is not as clean as NSTimer, though.
+
+I haven't had a close look at Grand Central Dispatch, but it seems that it is quite complex to use.
+
+Problem 3:
+/*
+PS5 is built on top of the code base from PS3, and is integrated with external physics engine Box2D. Since the design of Box2D is essentially different from the design used in PS4 (in which I places emphasis on simplicity of the game engine), the design of the game has to be changed in PS5 to make it compatible with Box2D.
+*/
+
+Since I am using an external physics engine, it is not necessary to test the physics engine. I only need to do integration testing.
+
+Testing is done after a new feature or an effect is added, or when the code is refactored. Not all features tested in every test since it will take too much time and inefficient. Testing is usually targeted at the features that are most likely affected by the change, plus some extra testing on actions to set up the environment for the feature to be tested (e.g. placing objects in game area).
+
+When a new feature is added, testing will focus on the effect of the new feature, other features that are closely related to the new feature and when the feature should be/not be available. Take direction arrow as an example.
+1. User should be able to move the direction arrow and it should change color when it is being moved. Its position and rotation is dependent on the wolf.
+2. The direction arrow should specify the initial direction of the wolf breath.
+3. It should only show up during play mode and user interaction should not propagate to it during level builder mode.
+Testing for a certain feature may be deferred if the feature that the test depends on is not available.
+
+Profiling is occasionally done to check for memory leaks and/or to reduce the memory usage. I profiled my program in 2 occasions. Once before starting on PS5 to make sure all the objects are cleaned up when it should be, and to improve memory usage. Second time to make sure there are no memory leak during integration with Box2D (shape function in GameObject).
+
+Black-box testing:
+- Feature (un)availability: making sure the feature is available/not available in certain mode. Below are lists of features that should only be available in their respective mode.
+  + Level builder mode:
+    . Palette: User interaction with items on palette.
+    . GameObject: User move, rotate, resize (if applicable), change block type (for GameBlock).
+    . Save and load level
+    . Clear the game area (reset)
+    . Start the game
+  + Play mode:
+    . GameBreath (everything related to it)
+    . GameWolf: Blow breath and angle selection. Animation (suck air, wolf blowing). Angle degree, arrow, breath bar images.
+    . Stop the game
+- Level builder mode:
+  + Palette: The palette should show one wolf, one pig and one block on the palette at the beginning and after every reset.
+  + Object interaction:
+    . GameWolf: The wolf cannot be rotated or resized. It can be moved around.
+    . GamePig: The pig cannot be rotated. It can be moved around. It can be resized only if it is in game area.
+    . GameBlock: Block type can (only) be changed by single tap on the block (moving the object around, etc. should not change the type of block). It can be moved around. It can be rotated and resized only if it is in game area.
+    . There is an upper and lower limit on resizing object, if applicable.
+  + Dragging the objects around:
+    . Irrespective of the dragging path or starting position, if the game object lands inside game area (the center of the view lands inside game area), it should stay in the game area at the position it lands.
+    . Irrespective of the dragging path or starting position, if the game object lands outside game area (the center of the view lands outside game area), it should be removed (for GameBlock) or restored to the palette (for GamePig and GameWolf).
+    . When a GameBlock is dragged from the palette and placed inside game area, a new GameBlock should be created on the palette.
+    . Simultaneous movement of objects should be possible (up to the limit permitted by hardware and iOS). This means any combination of simultaneously moving object from palette and game area result in the individual objects following the above rules.
+  + Reset button:
+    . When the reset button is tapped, the palette should be restored as described above, and the game area should be cleared of all game objects.
+- Play mode:
+  + 
+- Switching between play mode and level builder mode:
+  + When the user ends the current game (play mode) and returns to level builder mode, the game area should show the original design of the level and not the game play aftermath.
+    . GameObject should be movable, rotatable, resizable (if applicable)
+    . GameWolf should not respond to long hold gesture
+    . Any GameBreath remaining should be cleared off
+    . Destroyed GameObject in play mode should reappear in level builder mode at the original position with the original look
+
+
+// Every time we start the game, it is started fresh, i.e. no leftover artifacts from previous play.
+Glass-box testing:
+
+- Level builder mode:
+  + Palette: Observe from the log that the palette should never contain more than one wolf, one pig and one block, and the palette should always contain a block.
+  + Reset button:
+    . Make sure from the log and profiling that when the button is clicked, there should only be 3 GameObject in the memory (1 GameWolf, 1 GamePig, 1 GameBlock).
+
+- Switching between play mode and level builder mode:
+  + (Mode consistency, as described in black-box testing):
+    . After returning to level builder mode, sliding finger around the position of the arrow should not generate log message.
+    . b2Body of all the GameObject should be destroyed
+
 Problem 5:
 
 
@@ -12,4 +104,4 @@ c. Nope. The process is part of learning.
 
 d.
 Problem set 3 is quite a big jump and I had a lot of problem with it. Probably push a bit of the content to problem set 2.
-Problem set 4 can be good or bad depending on how it is done. I just follow the instruction for the game engine, so not much is learnt. For designing part, I follow minimalist approach in my design: I designs a game engine that is extensible for requirement in PS5, but no more than that. As a result, the design doesn't apply for PS5 when I plug in external game engine.
+Problem set 4 can be good or bad depending on how it is done. I just follow the instruction for the game engine, so not much is learnt. For designing part, I follow minimalist approach in my design: I designs a game engine that is extensible for requirement in PS5, but no more than that. As a result, the design doesn't apply for PS5 when I plug in external game engine since it is designed differently.
