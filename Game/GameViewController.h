@@ -21,8 +21,8 @@ typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
 #define DEFAULT_POSITION_ITERATIONS 6
 
 @interface GameViewController : UIViewController {
-    NSTimer *timer;
     b2World *gameWorld;
+    NSTimer *timer;
     ContactListener *contactListener;
     
     GameMode kGameMode;

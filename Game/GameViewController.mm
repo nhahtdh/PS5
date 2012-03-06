@@ -329,25 +329,28 @@
     return YES;
 }
 
+- (void) setUpPhysicsBody: (GameObject*) o {
+    assert(o.body == nil);
+    
+    DLog(@"%@ GameObjectState: %d", [o class], o.kGameObjectState);
+    
+    const b2BodyDef& bodyDef = o.bodyDef;
+    b2Shape *shape = o.shape;
+    const b2FixtureDef& noShapeFixtureDef = o.fixtureDef;
+    
+    b2FixtureDef fixtureDef(noShapeFixtureDef);
+    fixtureDef.shape = shape;
+    
+    o.body = gameWorld->CreateBody(&bodyDef);
+    o.body->CreateFixture(&fixtureDef);
+    o.body->SetUserData((__bridge void *) o);
+    
+    delete shape;
+}
+
 - (void) setUpBeforePlay {
     for (GameObject* o in self.gameObjectsInGameArea) {
-        assert(o.body == nil);
-        
-        DLog(@"%@ GameObjectState: %d", [o class], o.kGameObjectState);
-        
-        const b2BodyDef& bodyDef = o.bodyDef;
-        b2Shape *shape = o.shape;
-        const b2FixtureDef& noShapeFixtureDef = o.fixtureDef;
-        
-        b2FixtureDef fixtureDef(noShapeFixtureDef);
-        fixtureDef.shape = shape;
-        
-        o.body = gameWorld->CreateBody(&bodyDef);
-        o.body->CreateFixture(&fixtureDef);
-        o.body->SetUserData((__bridge void *) o);
-        
-        delete shape;
-        
+        [self setUpPhysicsBody: o];
         [o setUpForPlay];
     }
     
@@ -403,11 +406,61 @@
     
 }
 
+- (void) playMode {
+    assert(timer == nil);
+    
+    // Set game mode
+    kGameMode_ = kGameModePlay;
+    
+    // Disable buttons
+    self.loadButton.hidden = YES;
+    self.saveButton.hidden = YES;
+    self.resetButton.hidden = YES;
+    
+    [self.playButton setTitle: @"End" forState: UIControlStateNormal];
+    [self.playButton setTitle: @"End" forState: UIControlStateHighlighted];
+    
+    // TODO: What the palette should show when the user is playing.
+    // Make sure the states are consistent throughout
+    self.palette.userInteractionEnabled = NO;
+    
+    [self setUpBeforePlay];
+    
+    timer = [NSTimer scheduledTimerWithTimeInterval: 1. / UPDATES_PER_SECOND
+                                             target: self 
+                                           selector: @selector(updateView:)
+                                           userInfo: nil 
+                                            repeats: YES];
+}
+
+// TODO: Make sure this function is safe to call when the wolf die
+- (void) builderMode {
+    // Remove the timer
+    [timer invalidate];
+    timer = nil;
+    
+    // Tearing down physical object should only be done after the timer is invalidated
+    // to prevent accessing inexistent objects
+    [self tearDownAfterPlay];
+    
+    // Set game mode
+    kGameMode_ = kGameModeBuilder;
+    
+    // Enable buttons
+    self.loadButton.hidden = NO;
+    self.saveButton.hidden = NO;
+    self.resetButton.hidden = NO;
+    
+    [self.playButton setTitle: @"Play" forState: UIControlStateNormal];
+    [self.playButton setTitle: @"Play" forState: UIControlStateHighlighted];
+    
+    // TODO: Palette.
+    self.palette.userInteractionEnabled = YES;
+}
+
 - (IBAction)playButtonPressed:(id)sender {
     DLog(@"%@ button pressed", self.playButton.titleLabel.text);
     if (self.kGameMode == kGameModeBuilder) {
-        assert(timer == nil);
-        
         if (![self canPlay]) {
             DLog(@"Failed to start");
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Failed to start"
@@ -419,51 +472,9 @@
             return;
         }
         
-        kGameMode_ = kGameModePlay;
-        
-        // Disable buttons
-        self.loadButton.hidden = YES;
-        self.saveButton.hidden = YES;
-        self.resetButton.hidden = YES;
-        
-        [self.playButton setTitle: @"End" forState: UIControlStateNormal];
-        [self.playButton setTitle: @"End" forState: UIControlStateHighlighted];
-        
-        // TODO: What the palette should show when the user is playing.
-        // Make sure the states are consistent throughout
-        self.palette.userInteractionEnabled = NO;
-        
-        [self setUpBeforePlay];
-        
-        timer = [NSTimer scheduledTimerWithTimeInterval: 1. / UPDATES_PER_SECOND
-                                                 target: self 
-                                               selector: @selector(updateView:)
-                                               userInfo: nil 
-                                                repeats: YES];
-        
+        [self playMode];
     } else if (self.kGameMode == kGameModePlay) {
-        // Remove the timer
-        [timer invalidate];
-        timer = nil;
-        
-        // Tearing down physical object should only be done after the timer is invalidated
-        // to prevent accessing inexistent objects
-        [self tearDownAfterPlay];
-        
-        kGameMode_ = kGameModeBuilder;
-        
-        // Enable buttons
-        self.loadButton.hidden = NO;
-        self.saveButton.hidden = NO;
-        self.resetButton.hidden = NO;
-        
-        [self.playButton setTitle: @"Play" forState: UIControlStateNormal];
-        [self.playButton setTitle: @"Play" forState: UIControlStateHighlighted];
-        
-        // TODO: Palette.
-        self.palette.userInteractionEnabled = YES;
-        
-        
+        [self builderMode];
     } else {
         @throw [NSException exceptionWithName: @"Not implemented exception" 
                                        reason: @"Unimplemented game mode" 

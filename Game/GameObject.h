@@ -7,13 +7,12 @@
 #import <Box2D/Box2D.h>
 #import "Utilities.h"
 #import "ContactListenerProtocol.h"
-#import "MovableObjectProtocol.h"
 
 typedef enum {kGameObjectWolf, kGameObjectPig, kGameObjectBlock} GameObjectType;
 
 typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGameObjectStateOnGameArea} GameObjectState;
 
-@interface GameObject : UIViewController <UIGestureRecognizerDelegate, ContactListenerProtocol, MovableObjectProtocol> {
+@interface GameObject : UIViewController <UIGestureRecognizerDelegate, ContactListenerProtocol> {
     GameObjectState kGameObjectState;
     
     UIImageView* imageView;

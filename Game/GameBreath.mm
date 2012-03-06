@@ -11,9 +11,6 @@
 
 @implementation GameBreath
 
-@synthesize imageView;
-@synthesize body;
-
 + (NSArray*) windBlowImages {
     static NSArray* frames;
     if (frames == nil) {

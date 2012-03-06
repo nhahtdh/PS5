@@ -11,6 +11,10 @@
 
 class ContactListener: public b2ContactListener {
 public:
+    void PreSolve(b2Contact* contact, const b2Manifold *oldManifold) {
+        
+    }
+    
     void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) {
 		id userDataA = (__bridge id) contact->GetFixtureA()->GetBody()->GetUserData();
         if (userDataA && [userDataA conformsToProtocol: @protocol(ContactListenerProtocol)]) {
