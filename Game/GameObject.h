@@ -36,7 +36,6 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
     // In-play attributes
     b2Body *body;
     CGFloat damage;
-    NSInteger hitPoints;
 }
 
 - (id) init;
@@ -51,7 +50,9 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
 @property (nonatomic, readonly) CGSize defaultIconSize;
 @property (strong, nonatomic, readonly) UIImageView* imageView;
 
-- (void)resetToPaletteIcon;
+- (void) resize:(CGSize)sizes;
+
+- (void) resetToPaletteIcon;
 
 #pragma mark GameObject properties
 
@@ -72,11 +73,14 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
 #pragma mark Game mechanics
 
 @property (readwrite) b2Body *body;
-// TODO: Remove the line below:
 @property (nonatomic, readonly) CGFloat damage;
-@property (nonatomic, readonly) NSInteger hitPoints;
-// The amount of hit points (or lives) a game object has. Subclasses may use this attribute in
-// different ways, but it should convey the same meaning.
+// The total damage the object received.
+
+- (BOOL)hasExpired;
+// Returns whether the object has expired or not. An object expires when the damage it receives exceeds
+// certain threshold, or by other conditions defined by subclasses.
+// This condition will be used to determine whether to continue to simulate the object or not.
+// REQUIRES: The GameObject is inside game area and the game is in play mode.
 
 - (void)setUpForPlay;
 

@@ -284,9 +284,7 @@
     
     DLog(@"Wolf:%d Pig:%d", numWolf, numPig);
     
-    // TODO: Reenable this
-    // return numWolf == 1 && numPig >= 1;
-    return YES;
+    return numWolf == 1 && numPig >= 1;
 }
 
 - (void) setUpPhysicsBody: (GameObject*) o {
@@ -324,7 +322,7 @@
     gameWorld->SetContactListener(NULL);
     contactListener->~ContactListener();
     
-    NSMutableArray *leftoverGameBreath = [NSMutableArray array];
+    NSMutableArray *gameBreath = [NSMutableArray array];
     
     for (GameObject *o in self.gameObjectsInGameArea) {
         // An object may be removed from the game world during game play
@@ -337,20 +335,20 @@
         o.view.hidden = NO;
         
         if (o.kGameObjectType == kGameObjectBreath) {
-            [leftoverGameBreath addObject: o];
+            [gameBreath addObject: o];
         } else {
             [o setUpForBuilder];
         }
     }
     
-    // Remove all leftover GameBreath, if any
-    for (GameObject *o in leftoverGameBreath) {
+    // Remove all GameBreath
+    for (GameObject *o in gameBreath) {
         [o.view removeFromSuperview];
         
         [self.gameObjectsInGameArea removeObject: o];
     }
     
-    [leftoverGameBreath removeAllObjects];
+    [gameBreath removeAllObjects];
 }
 
 - (void) updateView: (NSTimer*) timer {
@@ -360,35 +358,36 @@
         if (o.body) {
             // If the object was not destroyed
             [o updateView];
-            // TODO: Change this later
-            if (o.damage > 100) {
+            
+            if ([o hasExpired]) {
+                DLog(@"%@ has expired", o);
+                
                 // Remove the object from the game world
                 gameWorld->DestroyBody(o.body);
                 o.body = nil;
-                
-                // Hide the view
-                o.view.hidden = YES;
             }
         }
     }
 }
 
 - (void) createBreath:(b2Vec2)power from:(CGPoint)position {
-    assert(self.kGameMode == kGameModePlay);
-    
-    GameBreath *breath = [[GameBreath alloc] init];
-    [self.gameObjectsInGameArea addObject: breath];
-    
-    [self.gameArea addSubview: breath.view];
-    breath.view.center = position;
-    
-    [self setUpPhysicsBody: breath];
-    [breath setUpForPlay];
-    
-    [breath launch: power];
-    
-    if (!contactListener->GetShouldApplyDamage()) {
-        contactListener->SetShouldApplyDamage(true);
+    // assert(self.kGameMode == kGameModePlay);
+    // createBreath is delayed, so the game can be ended while the createBreath is dispatched but not called
+    if (self.kGameMode == kGameModePlay) {
+        GameBreath *breath = [[GameBreath alloc] init];
+        [self.gameObjectsInGameArea addObject: breath];
+        
+        [self.gameArea addSubview: breath.view];
+        breath.view.center = position;
+        
+        [self setUpPhysicsBody: breath];
+        [breath setUpForPlay];
+        
+        [breath launch: power];
+        
+        if (!contactListener->GetShouldApplyDamage()) {
+            contactListener->SetShouldApplyDamage(true);
+        }
     }
 }
 

@@ -35,7 +35,6 @@
 
 @dynamic shape;
 @dynamic fixtureDef;
-@synthesize hitPoints;
 
 @synthesize center = center_;
 @synthesize angle = angle_;
@@ -61,7 +60,6 @@
             @throw [NSException exceptionWithName: @"Invalid initialization"
                                            reason: @"GameBreath object should be not be initialized with this function"
                                          userInfo: nil];
-            // return [[GameBreath alloc] init];
         default:
             return nil;
     }
@@ -120,7 +118,6 @@
     
     center_ = self.view.center;
     
-    // TODO: Remove this!
     damage = 0;
 }
 
@@ -132,23 +129,21 @@
     self.view.center = self.center;
     [self.view setTransform: CGAffineTransformScale(CGAffineTransformMakeRotation(self.angle), self.scale, self.scale)];
     
-    // TODO: Remove this!
-    self.imageView.alpha = 1;
+    damage = 0;
 }
 
-// TODO: Remove the line below
+- (BOOL) hasExpired {
+    return NO;
+}
+
 @synthesize damage;
 
 - (void) applyDamage:(const b2ContactImpulse *)impulses {
-    
-    // DLog(@"applyDamage on %@: %f %f", self, impulses->normalImpulses[0] / self.body->GetMass(), impulses->normalImpulses[1] / self.body->GetMass());
-    CGFloat curr = (fabs(impulses->normalImpulses[0] - impulses->normalImpulses[1]) * 0.8 +
-                    (impulses->normalImpulses[0] + impulses->normalImpulses[1]) * 0.4) / self.body->GetMass();
-    // if (curr > 1)
+    CGFloat curr = (impulses->normalImpulses[0] + impulses->normalImpulses[1]) / self.body->GetMass();
+    // DLog(@"Normalized damage on %@: %f", self, curr);
+    if (curr > 1)
         damage += curr;
     
-    self.imageView.backgroundColor = [UIColor greenColor];
-    self.imageView.alpha = MAX(0.0, (100 - self.damage)/100);
     // DLog(@"Accummulated damage: %@ %f", self, damage);
 }
 
@@ -158,6 +153,10 @@
     
     const b2Vec2 &position = body->GetPosition();
     [self.view setCenter: CGPointMake(meterToPixel(position.x), meterToPixel(position.y))];
+    
+    if ([self hasExpired]) {
+        self.view.hidden = YES;
+    }
 }
 
 #pragma mark View lifecycle
@@ -287,21 +286,7 @@
                 
                 [UIView commitAnimations];
             }
-        } // else if ([gesture state] == UIGestureRecognizerStateCancelled) {
-            // This case happens when the notification bar is activated.
-            // DLog(@"WARNING: Gesture cancelled on %@ with state %d", self, self.kGameObjectState);
-            /*
-            if (self.kGameObjectState == kGameObjectStateTransitFromPalette) {
-                kGameObjectState_ = kGameObjectStateOnPalette;
-                [self.view setCenter: [gameViewController.palette convertPoint: __startingPosition
-                                                                      fromView: gameViewController.view]];
-                [gameViewController redrawPalette];
-            } else {
-                
-            }
-             */
-        // }
-        
+        }
     } else {
         DLog(@"Translation rejected");
     }
@@ -370,7 +355,6 @@
             [gesture state] == UIGestureRecognizerStateFailed) {
             DLog(@"WARNING: Gesture failed or cancelled");
         }
-        
     } else {
         DLog(@"Rotation rejected on %@ object", [self class]);
     }

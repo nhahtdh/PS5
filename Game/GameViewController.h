@@ -29,7 +29,6 @@ typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
     b2World *gameWorld;
     ContactListener *contactListener;
     NSTimer *updateTimer;
-    NSTimer *coolDownTimer;
 }
 
 @property (readonly) GameMode kGameMode;

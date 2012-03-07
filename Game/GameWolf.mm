@@ -153,6 +153,14 @@
     self.arrowView.transform = CGAffineTransformMakeRotation(body->GetAngle() + (M_PI / 2 - self.blowingAngle));
 }
 
+- (BOOL) hasExpired {
+    return NO;
+}
+
+- (void) applyDamage:(const b2ContactImpulse *)impulses {
+    // GameWolf does not take damage
+}
+
 #pragma mark Gestures
 
 -(BOOL) canTranslate {
@@ -216,7 +224,9 @@
         [self.windSuckView startAnimating];
         
         b2Vec2 powerVec(self.power * cos(- self.blowingAngle - self.angle) * MAX_BLOWING_POWER, self.power * sin(- self.blowingAngle - self.angle) * MAX_BLOWING_POWER);
-        [(GameViewController*) self.parentViewController createBreath: powerVec from: self.arrowView.center];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.75 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
+            [(GameViewController*) self.parentViewController createBreath: powerVec from: self.arrowView.center];
+        });
         
         self.powerBar.hidden = YES;
         self.staticPowerBar.hidden = YES;

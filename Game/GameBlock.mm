@@ -94,8 +94,23 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 
 #pragma mark - Game mechanics
 
+- (BOOL) hasExpired {
+    switch (kGameBlockType) {
+        case kGameBlockStraw:
+            return damage > 50;
+        case kGameBlockWood:
+        case kGameBlockIron:
+        case kGameBlockStone:
+            return damage > 80;
+        default:
+            @throw [NSException exceptionWithName: @"Unimplemented exception" 
+                                           reason: @"Unimplemented block type" userInfo: nil];
+    }
+}
+
 - (void) setUpForPlay {
     [super setUpForPlay];
+    
     tap.enabled = NO;
 }
 

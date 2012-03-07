@@ -21,10 +21,10 @@
 
 #pragma mark - Game mechanics
 
+- (BOOL) hasExpired;
+
 - (void) launch: (b2Vec2)power;
 
 - (void) setUpForPlay;
-
-- (void) applyDamage:(const b2ContactImpulse *)impulses;
 
 @end

@@ -21,6 +21,15 @@
     return frames;
 }
 
++ (NSArray*) windDisperseImages {
+    static NSArray* frames;
+    if (frames == nil) {
+        frames = imageToFrames(@"wind-disperse.png", 5, 2);
+    }
+    
+    return frames;
+}
+
 - (id) init {
     if (self = [super init]) {
         kGameObjectState_ = kGameObjectStateOnGameArea;
@@ -49,6 +58,7 @@
     bodyDef.position = b2Vec2(pixelToMeter(self.view.center.x), pixelToMeter(self.view.center.y));
     DLog(@"%f %f", self.view.center.x, self.view.center.y);
     bodyDef.type = b2_dynamicBody;
+    bodyDef.bullet = true;
     return bodyDef;
 }
 
@@ -64,24 +74,34 @@
 - (b2FixtureDef) fixtureDef {
     b2FixtureDef fixtureDef;
     
-    fixtureDef.density = 3;
-    fixtureDef.friction = 0.8;
-    fixtureDef.restitution = 0.1;
+    fixtureDef.density = 3.5;
+    fixtureDef.friction = 0.9;
+    fixtureDef.restitution = 0.0;
     
     return fixtureDef;
 }
 
 #pragma mark - Game mechanics
 
+- (BOOL) hasExpired {
+    // A GameBreath will expire when
+    // - After collision with too many objects
+    // - Out of bounds
+    // - Low energy
+    CGFloat scalarVelocity = hypot(self.body->GetLinearVelocity().x, self.body->GetLinearVelocity().y);
+    CGFloat kineticEnergy = self.body->GetMass() * scalarVelocity * scalarVelocity / 2;
+    return damage > 80. ||
+           (self.view.center.x > ((UIScrollView*) self.view.superview).contentSize.width) ||
+           (self.view.center.x < 0) || 
+           (kineticEnergy < 0.5);
+}
+
 - (void) launch:(b2Vec2)power {
     // self.body->ApplyForceToCenter(power);
     
     self.body->ApplyLinearImpulse(power, self.body->GetPosition());
-    [NSTimer scheduledTimerWithTimeInterval: 1 
-                                     target: self.imageView 
-                                   selector: @selector(startAnimating) 
-                                   userInfo: nil
-                                    repeats: NO];
+                       
+    [self.imageView startAnimating];
 }
 
 - (void) setUpForPlay {
@@ -93,19 +113,35 @@
     [super setUpForPlay];
 }
 
-- (void) applyDamage:(const b2ContactImpulse *)impulses {
-    [super applyDamage: impulses];
+- (void) updateView {
+    [super updateView];
+    
+    // DLog(@"%f, %f", self.body->GetLinearVelocity().x, self.body->GetLinearVelocity().y);
+    
+    if ([self hasExpired]) {
+        self.view.hidden = NO;
+        
+        // Adjust bounds and frames
+        self.imageView.image = (UIImage*) [[GameBreath windDisperseImages] lastObject];
+        [self.imageView sizeToFit];
+        [self resize: self.imageView.image.size];
+        
+        // Enforce the center again
+        b2Vec2 position = self.body->GetPosition();
+        self.view.center = CGPointMake(meterToPixel(position.x), meterToPixel(position.y));
+        
+        // Animate
+        self.imageView.animationImages = [GameBreath windDisperseImages];
+        self.imageView.animationDuration = 1.5;
+        self.imageView.animationRepeatCount = 1;
+        [self.imageView startAnimating];
+        
+        // Hide the view after animation
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.5 * NSEC_PER_SEC), dispatch_get_current_queue(), ^(void){
+            self.view.hidden = YES;
+        });
+    }
 }
-
-/*
-- (void) setUpForPlay {
-    [super setUpForPlay];
-    
-    
-    
-    // body->ApplyForce(<#const b2Vec2 &force#>, <#const b2Vec2 &point#>)
-}
- */
 
 #pragma mark - View lifecycle
 
@@ -114,15 +150,14 @@
     [super viewDidLoad];
 
     imageView = [[UIImageView alloc] init];
-    self.imageView.image = [[GameBreath windBlowImages] objectAtIndex: 0];
-    [self.imageView sizeToFit];
     self.imageView.animationImages = [GameBreath windBlowImages];
     self.imageView.animationRepeatCount = 0; // No limit
     self.imageView.animationDuration = 0.5;
     
     [self.view addSubview: self.imageView];
-    self.view.frame = CGRectMake(0, 0, self.defaultImageSize.width, self.defaultImageSize.height);
     [self.view setBackgroundColor: [UIColor clearColor]];
+    
+    [self resize: self.defaultImageSize];
 }
 
 - (void)viewDidUnload

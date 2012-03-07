@@ -22,7 +22,7 @@
     return CGSizeMake(100, 100);
 }
 
-+ (UIImage*) getImage {
++ (UIImage*) getPigImage {
     static UIImage* pigNormal;
     if (pigNormal == nil) {
         pigNormal = [UIImage imageNamed: @"pig.png"];
@@ -49,14 +49,14 @@
     
     b2FixtureDef fixtureDef;
     
-    fixtureDef.density = 2.5;
+    fixtureDef.density = 1.5;
     fixtureDef.friction = 0.8;
-    fixtureDef.restitution = 0.1;
+    fixtureDef.restitution = 0.0;
     
     return fixtureDef;
 }
 
-#pragma mark Gestures
+#pragma mark - Gestures
 
 -(BOOL) canTranslate {
     return YES;
@@ -78,6 +78,49 @@
     return 0.8;
 }
 
+#pragma mark - Game mechanics
+
+- (BOOL) hasExpired {
+    return damage > 60.;
+}
+
+- (void) updateView {
+    [super updateView];
+    
+    if (self.damage > 30.) {
+        self.imageView.image = [UIImage imageNamed: @"pig2.png"];
+    } else if ([self hasExpired]) {
+        self.view.hidden = YES;
+        /*
+        self.view.hidden = NO;
+        
+        self.imageView.animationImages = imageToFrames(@"pig-die-smoke.png", 5, 2);
+        self.imageView.animationDuration = 0.8;
+        self.imageView.animationRepeatCount = 1;
+        
+        self.imageView.image = [self.imageView.animationImages lastObject];
+        [self.imageView sizeToFit];
+        [self resize: self.imageView.image.size];
+        
+        b2Vec2 position = self.body->GetPosition();
+        self.view.center = CGPointMake(meterToPixel(position.x), meterToPixel(position.y));
+        
+        [self.imageView startAnimating];
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.8 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
+            self.view.hidden = YES;
+        });
+         */
+    }
+}
+
+- (void) setUpForBuilder {
+    [super setUpForBuilder];
+    
+    self.imageView.image = [GamePig getPigImage];
+    // self.imageView.animationImages = nil;
+}
+
 #pragma mark - View life cycle
 
 - (void) viewDidLoad {
@@ -86,8 +129,11 @@
     // Set up view
     [self.view setAutoresizesSubviews: YES];
     
-    UIImage *pigImage = [GamePig getImage];
+    UIImage *pigImage = [GamePig getPigImage];
     imageView = [[UIImageView alloc] initWithImage: pigImage];
+    
+    // self.imageView.animationDuration = 0.4;
+    // self.imageView.animationRepeatCount = 1;
     
     [self.view addSubview: imageView];
     [self.view setBackgroundColor: [UIColor clearColor]];
@@ -96,4 +142,5 @@
 - (void)viewDidUnload {
     [super viewDidUnload];
 }
+
 @end
