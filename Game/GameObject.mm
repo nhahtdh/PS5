@@ -131,17 +131,25 @@
     
     self.view.center = self.center;
     [self.view setTransform: CGAffineTransformScale(CGAffineTransformMakeRotation(self.angle), self.scale, self.scale)];
+    
+    // TODO: Remove this!
+    self.imageView.alpha = 1;
 }
+
+// TODO: Remove the line below
+@synthesize damage;
 
 - (void) applyDamage:(const b2ContactImpulse *)impulses {
     
     // DLog(@"applyDamage on %@: %f %f", self, impulses->normalImpulses[0] / self.body->GetMass(), impulses->normalImpulses[1] / self.body->GetMass());
-    CGFloat curr = impulses->normalImpulses[0] / self.body->GetMass() + impulses->normalImpulses[1] / self.body->GetMass();
-    if (curr > 1)
+    CGFloat curr = (fabs(impulses->normalImpulses[0] - impulses->normalImpulses[1]) * 0.8 +
+                    (impulses->normalImpulses[0] + impulses->normalImpulses[1]) * 0.4) / self.body->GetMass();
+    // if (curr > 1)
         damage += curr;
     
+    self.imageView.backgroundColor = [UIColor greenColor];
+    self.imageView.alpha = MAX(0.0, (100 - self.damage)/100);
     // DLog(@"Accummulated damage: %@ %f", self, damage);
-    // hitPoints += impulses->normalImpulses[0] + 
 }
 
 - (void) updateView {
@@ -204,8 +212,6 @@
     
     if ([self canTranslate]) {
         GameViewController *gameViewController = (GameViewController*) self.parentViewController;
-        // assert(gesture.view == self.view);
-        // assert(gameViewController != nil);
         if ([gesture state] == UIGestureRecognizerStateBegan) {
             // Change ref. frame of center point from superview of object to the root view
             __startingPosition = [gameViewController.view convertPoint: self.view.center fromView: self.view.superview];
@@ -227,7 +233,9 @@
         DLog(@"%@ state: %d", self, self.kGameObjectState);
         [self.view setCenter: translatedCenter];
          
-        if ([gesture state] == UIGestureRecognizerStateEnded) {
+        if ([gesture state] == UIGestureRecognizerStateEnded ||
+            [gesture state] == UIGestureRecognizerStateCancelled) {
+            // Note: The gesture is cancelled when the notification bar is activated.
             CGPoint centerRelativeToGameArea = [gameViewController.gameArea convertPoint: translatedCenter fromView:gameViewController.view];
             
             // The object lands inside game area
@@ -239,7 +247,6 @@
                 [self.view setCenter: centerRelativeToGameArea];
                 
                 if (self.kGameObjectState == kGameObjectStateTransitFromPalette) {
-                    // [gameViewController addGameObjectToGameArea: self];
                     [gameViewController.gameObjectsInGameArea addObject: self];
                     [gameViewController removeGameObjectFromPalette: self];
                     if (self.kGameObjectType == kGameObjectBlock) {
@@ -265,14 +272,12 @@
                         if (self.kGameObjectType == kGameObjectPig || self.kGameObjectType == kGameObjectWolf) {
                             kGameObjectState_ = kGameObjectStateOnPalette;
                             [gameViewController addGameObjectToPalette: self];
-                            // [gameViewController removeGameObjectFromGameArea: self];
                             [gameViewController.gameObjectsInGameArea removeObject: self];
                             [gameViewController redrawPalette];
                         } else if (self.kGameObjectType == kGameObjectBlock) {
                             [self removeFromParentViewController];
                             [self.view removeFromSuperview];
                             [gameViewController.gameObjectsInGameArea removeObject: self];
-                            // [gameViewController removeGameObjectFromGameArea: self];
                         }
                         break;
                     case kGameObjectStateOnPalette:
@@ -282,9 +287,9 @@
                 
                 [UIView commitAnimations];
             }
-        } else if ([gesture state] == UIGestureRecognizerStateCancelled) {
+        } // else if ([gesture state] == UIGestureRecognizerStateCancelled) {
             // This case happens when the notification bar is activated.
-            DLog(@"WARNING: Gesture cancelled on %@ with state %d", self, self.kGameObjectState);
+            // DLog(@"WARNING: Gesture cancelled on %@ with state %d", self, self.kGameObjectState);
             /*
             if (self.kGameObjectState == kGameObjectStateTransitFromPalette) {
                 kGameObjectState_ = kGameObjectStateOnPalette;
@@ -295,7 +300,7 @@
                 
             }
              */
-        }
+        // }
         
     } else {
         DLog(@"Translation rejected");

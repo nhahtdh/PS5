@@ -150,7 +150,6 @@
     [super updateView];
     
     self.arrowView.center = [self.view convertPoint: CGPointMake(220, 30) toView: self.view.superview];
-    // DLog(@"%f %f", self.arrowView.center.x, self.arrowView.center.y);
     self.arrowView.transform = CGAffineTransformMakeRotation(body->GetAngle() + (M_PI / 2 - self.blowingAngle));
 }
 
@@ -169,7 +168,7 @@
 }
 
 -(void) changeBlowingAngle: (UIOneFingerRotationGestureRecognizer*) gesture {
-    // assert(kGameObjectState == kGameObjectStateOnGameArea);
+    assert(self.kGameObjectState == kGameObjectStateOnGameArea);
     // assert(gesture.view == self.arrowView);
     
     DLog(@"One finger rotation detected.");

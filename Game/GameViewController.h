@@ -28,7 +28,8 @@ typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
     
     b2World *gameWorld;
     ContactListener *contactListener;
-    NSTimer *timer;
+    NSTimer *updateTimer;
+    NSTimer *coolDownTimer;
 }
 
 @property (readonly) GameMode kGameMode;
@@ -43,15 +44,8 @@ typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
 
 - (void) removeGameObjectFromPalette: (GameObject*) gameObject;
 
-/*
-- (void) addGameObjectToGameArea: (GameObject*) gameObject;
-
-- (void) removeGameObjectFromGameArea: (GameObject*) gameObject;
- */
-
 - (void) redrawPalette;
 
-// - (void) createBreath: (b2Vec2) power from: (b2Vec2) position;
 - (void) createBreath: (b2Vec2) power from: (CGPoint) position;
 
 #pragma mark UIButton

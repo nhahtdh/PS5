@@ -21,17 +21,6 @@
     return frames;
 }
 
-/*
-- (id) initWithPower: (b2Vec2)pow from: (b2Vec2)pos {
-    if (self = [super init]) {
-        power = pow;
-        position = pos;
-    }
-    
-    return self;
-}
- */
-
 - (id) init {
     if (self = [super init]) {
         kGameObjectState_ = kGameObjectStateOnGameArea;
@@ -75,7 +64,7 @@
 - (b2FixtureDef) fixtureDef {
     b2FixtureDef fixtureDef;
     
-    fixtureDef.density = 5;
+    fixtureDef.density = 3;
     fixtureDef.friction = 0.8;
     fixtureDef.restitution = 0.1;
     
@@ -105,7 +94,7 @@
 }
 
 - (void) applyDamage:(const b2ContactImpulse *)impulses {
-
+    [super applyDamage: impulses];
 }
 
 /*
@@ -126,7 +115,6 @@
 
     imageView = [[UIImageView alloc] init];
     self.imageView.image = [[GameBreath windBlowImages] objectAtIndex: 0];
-    DLog(@"%f %f", self.imageView.image.size.width, self.imageView.image.size.height);
     [self.imageView sizeToFit];
     self.imageView.animationImages = [GameBreath windBlowImages];
     self.imageView.animationRepeatCount = 0; // No limit

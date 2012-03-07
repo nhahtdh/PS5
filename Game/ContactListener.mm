@@ -11,6 +11,10 @@
 
 class ContactListener: public b2ContactListener {
 public:
+    ContactListener(): shouldApplyDamage(false) {
+        
+    };
+    
     void PreSolve(b2Contact* contact, const b2Manifold *oldManifold) {
         id userDataA = (__bridge id) contact->GetFixtureA()->GetBody()->GetUserData();
         id userDataB = (__bridge id) contact->GetFixtureB()->GetBody()->GetUserData();
@@ -29,16 +33,29 @@ public:
     }
     
     void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) {
-		id userDataA = (__bridge id) contact->GetFixtureA()->GetBody()->GetUserData();
-        if (userDataA && [userDataA isKindOfClass: [GameObject class]]) {
-            [userDataA applyDamage: impulse];
-        }
-        
-        id userDataB = (__bridge id) contact->GetFixtureB()->GetBody()->GetUserData();
-        if (userDataB && [userDataB isKindOfClass: [GameObject class]]) {
-            [userDataB applyDamage: impulse];
+        if (this->shouldApplyDamage) {            
+            id userDataA = (__bridge id) contact->GetFixtureA()->GetBody()->GetUserData();
+            if (userDataA && [userDataA isKindOfClass: [GameObject class]]) {
+                [userDataA applyDamage: impulse];
+            }
+            
+            id userDataB = (__bridge id) contact->GetFixtureB()->GetBody()->GetUserData();
+            if (userDataB && [userDataB isKindOfClass: [GameObject class]]) {
+                [userDataB applyDamage: impulse];
+            }
         }
 	}
+    
+    bool GetShouldApplyDamage() {
+        return this->shouldApplyDamage;
+    }
+    
+    void SetShouldApplyDamage(bool shouldApplyDamage) {
+        this->shouldApplyDamage = shouldApplyDamage;
+    }
+    
+private:
+    bool shouldApplyDamage;
 };
 
 

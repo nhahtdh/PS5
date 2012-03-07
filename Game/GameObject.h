@@ -72,6 +72,8 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
 #pragma mark Game mechanics
 
 @property (readwrite) b2Body *body;
+// TODO: Remove the line below:
+@property (nonatomic, readonly) CGFloat damage;
 @property (nonatomic, readonly) NSInteger hitPoints;
 // The amount of hit points (or lives) a game object has. Subclasses may use this attribute in
 // different ways, but it should convey the same meaning.

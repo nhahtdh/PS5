@@ -54,12 +54,12 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
             fixtureDef.restitution = 0.2;
             break;
         case kGameBlockIron:
-            fixtureDef.density = 6;
+            fixtureDef.density = 8;
             fixtureDef.friction = 0.4;
             fixtureDef.restitution = 0.1;
             break;
         case kGameBlockStone:
-            fixtureDef.density = 8;
+            fixtureDef.density = 10;
             fixtureDef.friction = 0.5;
             fixtureDef.restitution = 0.05;
             break;

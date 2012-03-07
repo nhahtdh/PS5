@@ -101,16 +101,6 @@
     [self.gameObjectsInPalette removeObject: gameObject];
 }
 
-/*
-- (void)addGameObjectToGameArea:(GameObject *)gameObject {
-    [self.gameObjectsInGameArea addObject: gameObject];
-}
-
-- (void)removeGameObjectFromGameArea:(GameObject *)gameObject {
-    [self.gameObjectsInGameArea removeObject: gameObject];
-}
- */
-
 - (void)redrawPalette {
     for (UIView *subview in palette.subviews) {
         [subview removeFromSuperview];
@@ -194,7 +184,7 @@
     
     b2FixtureDef groundFixtureDef;
     groundFixtureDef.restitution = 0.1;
-    groundFixtureDef.friction = 0.5;
+    groundFixtureDef.friction = 0.75;
     groundFixtureDef.density = 1.;
     groundFixtureDef.shape = &groundShape;
     groundBody->CreateFixture(&groundFixtureDef);
@@ -302,7 +292,6 @@
 - (void) setUpPhysicsBody: (GameObject*) o {
     assert(o.body == nil);
     assert(o.kGameObjectState == kGameObjectStateOnGameArea);
-    // DLog(@"%@ GameObjectState: %d", [o class], o.kGameObjectState);
     
     const b2BodyDef& bodyDef = o.bodyDef;
     b2Shape *shape = o.shape;
@@ -316,6 +305,8 @@
     o.body->SetUserData((__bridge void *) o);
     
     delete shape;
+    
+    DLog(@"Mass of %@: %f", o, o.body->GetMass());
 }
 
 - (void) setUpBeforePlay {
@@ -336,12 +327,14 @@
     NSMutableArray *leftoverGameBreath = [NSMutableArray array];
     
     for (GameObject *o in self.gameObjectsInGameArea) {
-        // An object may be removed from the game world
-        // during game play
+        // An object may be removed from the game world during game play
+        // We only remove objects that are not yet destroyed.
         if (o.body != nil) {
             gameWorld->DestroyBody(o.body);
             o.body = nil;
         }
+        
+        o.view.hidden = NO;
         
         if (o.kGameObjectType == kGameObjectBreath) {
             [leftoverGameBreath addObject: o];
@@ -364,21 +357,27 @@
     gameWorld->Step(DEFAULT_TIME_STEP, DEFAULT_VELOCITY_ITERATIONS, DEFAULT_POSITION_ITERATIONS);
     
     for (GameObject *o in self.gameObjectsInGameArea) {
-        if (o.body)
-            // If the object is not destroyed
+        if (o.body) {
+            // If the object was not destroyed
             [o updateView];
-        // DLog(@"%f %f", o.view.frame.size.width, o.view.frame.size.height);
+            // TODO: Change this later
+            if (o.damage > 100) {
+                // Remove the object from the game world
+                gameWorld->DestroyBody(o.body);
+                o.body = nil;
+                
+                // Hide the view
+                o.view.hidden = YES;
+            }
+        }
     }
-    
-    // gameWorld->ClearForces();
 }
 
-// - (void) createBreath:(b2Vec2)power from:(b2Vec2)position {
 - (void) createBreath:(b2Vec2)power from:(CGPoint)position {
-    // GameBreath *breath = [[GameBreath alloc] initWithPower: power from: position];
+    assert(self.kGameMode == kGameModePlay);
+    
     GameBreath *breath = [[GameBreath alloc] init];
     [self.gameObjectsInGameArea addObject: breath];
-    // breath.position = position;
     
     [self.gameArea addSubview: breath.view];
     breath.view.center = position;
@@ -387,6 +386,10 @@
     [breath setUpForPlay];
     
     [breath launch: power];
+    
+    if (!contactListener->GetShouldApplyDamage()) {
+        contactListener->SetShouldApplyDamage(true);
+    }
 }
 
 /*
@@ -396,7 +399,7 @@
  */
 
 - (void) playMode {
-    assert(timer == nil);
+    assert(updateTimer == nil);
     
     // Set game mode
     kGameMode_ = kGameModePlay;
@@ -415,18 +418,18 @@
     
     [self setUpBeforePlay];
     
-    timer = [NSTimer scheduledTimerWithTimeInterval: 1. / UPDATES_PER_SECOND
-                                             target: self 
-                                           selector: @selector(updateView:)
-                                           userInfo: nil 
-                                            repeats: YES];
+    updateTimer = [NSTimer scheduledTimerWithTimeInterval: 1. / UPDATES_PER_SECOND
+                                                   target: self 
+                                                 selector: @selector(updateView:)
+                                                 userInfo: nil 
+                                                  repeats: YES];
 }
 
 // TODO: Make sure this function is safe to call when the wolf die
 - (void) builderMode {
     // Remove the timer
-    [timer invalidate];
-    timer = nil;
+    [updateTimer invalidate];
+    updateTimer = nil;
     
     // Tearing down physical object should only be done after the timer is invalidated
     // to prevent accessing inexistent objects
