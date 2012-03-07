@@ -15,8 +15,8 @@
 #define MIN_BLOWING_ANGLE (-M_PI / 3)
 #define DEFAULT_BLOWING_ANGLE (M_PI / 3)
 
-// Maximum blowing power in N(ewton)
-#define MAX_BLOWING_POWER 200
+// Maximum blowing speed in m/s
+#define MAX_BLOWING_POWER 100
 
 // Every time the power varies, it will change by one quantum
 // This defines the number of quantum between 0% to 100% of the breath

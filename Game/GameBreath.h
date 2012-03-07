@@ -8,12 +8,9 @@
 
 #import "GameObject.h"
 
-@interface GameBreath : GameObject {
-    b2Vec2 power;
-    b2Vec2 position;
-}
+#define NOT_IMPLEMENTED() assert(0)
 
-- (id) initWithPower: (b2Vec2) power from: (b2Vec2) position;
+@interface GameBreath : GameObject
 
 #pragma mark - Game properties
 
@@ -21,6 +18,12 @@
 @property (nonatomic, readonly) b2Shape *shape;
 // NOTE: Every time the shape is retrieved, the caller is responsible for destroying the object
 @property (nonatomic, readonly) b2FixtureDef fixtureDef;
+
+#pragma mark - Game mechanics
+
+- (void) launch: (b2Vec2)power;
+
+- (void) setUpForPlay;
 
 - (void) applyDamage:(const b2ContactImpulse *)impulses;
 

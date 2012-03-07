@@ -21,14 +21,14 @@ typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
 #define DEFAULT_POSITION_ITERATIONS 6
 
 @interface GameViewController : UIViewController {
-    b2World *gameWorld;
-    NSTimer *timer;
-    ContactListener *contactListener;
-    
     GameMode kGameMode;
     
     NSMutableArray *gameObjectsInGameArea;
     NSMutableArray *gameObjectsInPalette;
+    
+    b2World *gameWorld;
+    ContactListener *contactListener;
+    NSTimer *timer;
 }
 
 @property (readonly) GameMode kGameMode;
@@ -43,13 +43,16 @@ typedef enum {kGameModeBuilder, kGameModePlay} GameMode;
 
 - (void) removeGameObjectFromPalette: (GameObject*) gameObject;
 
+/*
 - (void) addGameObjectToGameArea: (GameObject*) gameObject;
 
 - (void) removeGameObjectFromGameArea: (GameObject*) gameObject;
+ */
 
 - (void) redrawPalette;
 
-- (void) createBreath: (b2Vec2) power from: (b2Vec2) position;
+// - (void) createBreath: (b2Vec2) power from: (b2Vec2) position;
+- (void) createBreath: (b2Vec2) power from: (CGPoint) position;
 
 #pragma mark UIButton
 

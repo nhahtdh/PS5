@@ -57,6 +57,11 @@
             return [[GamePig alloc] init];
         case kGameObjectBlock:
             return [[GameBlock alloc] init];
+        case kGameObjectBreath:
+            @throw [NSException exceptionWithName: @"Invalid initialization"
+                                           reason: @"GameBreath object should be not be initialized with this function"
+                                         userInfo: nil];
+            // return [[GameBreath alloc] init];
         default:
             return nil;
     }
@@ -105,6 +110,8 @@
     angle_ = 0.0;
     scale_ = 1.0;
 }
+
+#pragma mark - Game mechanics
 
 - (void) setUpForPlay {
     pan.enabled = NO;
@@ -232,7 +239,8 @@
                 [self.view setCenter: centerRelativeToGameArea];
                 
                 if (self.kGameObjectState == kGameObjectStateTransitFromPalette) {
-                    [gameViewController addGameObjectToGameArea: self];
+                    // [gameViewController addGameObjectToGameArea: self];
+                    [gameViewController.gameObjectsInGameArea addObject: self];
                     [gameViewController removeGameObjectFromPalette: self];
                     if (self.kGameObjectType == kGameObjectBlock) {
                         [gameViewController addGameObjectToPalette: [GameObject GameObjectCreate: kGameObjectBlock]];
@@ -257,12 +265,14 @@
                         if (self.kGameObjectType == kGameObjectPig || self.kGameObjectType == kGameObjectWolf) {
                             kGameObjectState_ = kGameObjectStateOnPalette;
                             [gameViewController addGameObjectToPalette: self];
-                            [gameViewController removeGameObjectFromGameArea: self];
+                            // [gameViewController removeGameObjectFromGameArea: self];
+                            [gameViewController.gameObjectsInGameArea removeObject: self];
                             [gameViewController redrawPalette];
                         } else if (self.kGameObjectType == kGameObjectBlock) {
                             [self removeFromParentViewController];
                             [self.view removeFromSuperview];
-                            [gameViewController removeGameObjectFromGameArea: self];
+                            [gameViewController.gameObjectsInGameArea removeObject: self];
+                            // [gameViewController removeGameObjectFromGameArea: self];
                         }
                         break;
                     case kGameObjectStateOnPalette:

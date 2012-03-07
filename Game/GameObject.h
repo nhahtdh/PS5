@@ -6,13 +6,13 @@
 #import <UIKit/UIKit.h>
 #import <Box2D/Box2D.h>
 #import "Utilities.h"
-#import "ContactListenerProtocol.h"
+// #import "ContactListenerProtocol.h"
 
-typedef enum {kGameObjectWolf, kGameObjectPig, kGameObjectBlock} GameObjectType;
+typedef enum {kGameObjectWolf, kGameObjectPig, kGameObjectBlock, kGameObjectBreath} GameObjectType;
 
 typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGameObjectStateOnGameArea} GameObjectState;
 
-@interface GameObject : UIViewController <UIGestureRecognizerDelegate, ContactListenerProtocol> {
+@interface GameObject : UIViewController <UIGestureRecognizerDelegate> {
     GameObjectState kGameObjectState;
     
     UIImageView* imageView;
@@ -38,6 +38,8 @@ typedef enum {kGameObjectStateOnPalette, kGameObjectStateTransitFromPalette, kGa
     CGFloat damage;
     NSInteger hitPoints;
 }
+
+- (id) init;
 
 + (GameObject*)GameObjectCreate: (GameObjectType) kGameObjectType;
 

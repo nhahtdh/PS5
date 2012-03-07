@@ -15,13 +15,11 @@
 }
 
 - (CGSize) defaultImageSize {
-    static const CGSize size = CGSizeMake(88, 88);
-    return size;
+    return CGSizeMake(88, 88);
 }
 
 - (CGSize) defaultIconSize {
-    static const CGSize size = CGSizeMake(100, 100);
-    return size;
+    return CGSizeMake(100, 100);
 }
 
 + (UIImage*) getImage {

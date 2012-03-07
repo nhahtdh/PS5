@@ -101,6 +101,7 @@
     [self.gameObjectsInPalette removeObject: gameObject];
 }
 
+/*
 - (void)addGameObjectToGameArea:(GameObject *)gameObject {
     [self.gameObjectsInGameArea addObject: gameObject];
 }
@@ -108,6 +109,7 @@
 - (void)removeGameObjectFromGameArea:(GameObject *)gameObject {
     [self.gameObjectsInGameArea removeObject: gameObject];
 }
+ */
 
 - (void)redrawPalette {
     for (UIView *subview in palette.subviews) {
@@ -276,39 +278,7 @@
     return NO;
 }
 
-#pragma mark Handle button events
-
-- (IBAction)buttonPressed:(id)sender {
-    /*
-    UIColor *newColor;
-    UIButton *button = (UIButton*)sender;
-    if ([button titleColorForState:UIControlStateNormal] ==
-        [UIColor blackColor]) {
-        newColor = [UIColor lightGrayColor];
-    } else {
-        newColor = [UIColor blackColor];
-    }
-    [button setTitleColor:newColor forState:UIControlStateNormal];
-     */
-}
-
-- (IBAction)resetButtonPressed:(id)sender {
-    DLog(@"Level builder is reset");    
-    
-    for (GameObject* o in self.gameObjectsInPalette) {
-        [o.view removeFromSuperview];
-        [o removeFromParentViewController];
-    }
-    [self.gameObjectsInPalette removeAllObjects];
-    
-    for (GameObject* o in self.gameObjectsInGameArea) {
-        [o.view removeFromSuperview];
-        [o removeFromParentViewController];
-    }
-    [self.gameObjectsInGameArea removeAllObjects];
-    
-    [self setUpPalette];
-}
+#pragma mark - Game mechanics
 
 - (BOOL) canPlay {
     int numWolf = 0;
@@ -331,8 +301,8 @@
 
 - (void) setUpPhysicsBody: (GameObject*) o {
     assert(o.body == nil);
-    
-    DLog(@"%@ GameObjectState: %d", [o class], o.kGameObjectState);
+    assert(o.kGameObjectState == kGameObjectStateOnGameArea);
+    // DLog(@"%@ GameObjectState: %d", [o class], o.kGameObjectState);
     
     const b2BodyDef& bodyDef = o.bodyDef;
     b2Shape *shape = o.shape;
@@ -350,6 +320,7 @@
 
 - (void) setUpBeforePlay {
     for (GameObject* o in self.gameObjectsInGameArea) {
+        assert(o.kGameObjectType != kGameObjectBreath);
         [self setUpPhysicsBody: o];
         [o setUpForPlay];
     }
@@ -362,6 +333,8 @@
     gameWorld->SetContactListener(NULL);
     contactListener->~ContactListener();
     
+    NSMutableArray *leftoverGameBreath = [NSMutableArray array];
+    
     for (GameObject *o in self.gameObjectsInGameArea) {
         // An object may be removed from the game world
         // during game play
@@ -370,8 +343,21 @@
             o.body = nil;
         }
         
-        [o setUpForBuilder];
+        if (o.kGameObjectType == kGameObjectBreath) {
+            [leftoverGameBreath addObject: o];
+        } else {
+            [o setUpForBuilder];
+        }
     }
+    
+    // Remove all leftover GameBreath, if any
+    for (GameObject *o in leftoverGameBreath) {
+        [o.view removeFromSuperview];
+        
+        [self.gameObjectsInGameArea removeObject: o];
+    }
+    
+    [leftoverGameBreath removeAllObjects];
 }
 
 - (void) updateView: (NSTimer*) timer {
@@ -379,32 +365,35 @@
     
     for (GameObject *o in self.gameObjectsInGameArea) {
         if (o.body)
+            // If the object is not destroyed
             [o updateView];
+        // DLog(@"%f %f", o.view.frame.size.width, o.view.frame.size.height);
     }
     
-    gameWorld->ClearForces();
+    // gameWorld->ClearForces();
 }
 
-- (void) createBreath:(b2Vec2)power from:(b2Vec2)position {
-    GameBreath *breath = [[GameBreath alloc] initWithPower: power from: position];
-    const b2BodyDef &bodyDef = breath.bodyDef;
-    b2Shape *shape = breath.shape;
-    const b2FixtureDef &noShapeFixtureDef = breath.fixtureDef;
+// - (void) createBreath:(b2Vec2)power from:(b2Vec2)position {
+- (void) createBreath:(b2Vec2)power from:(CGPoint)position {
+    // GameBreath *breath = [[GameBreath alloc] initWithPower: power from: position];
+    GameBreath *breath = [[GameBreath alloc] init];
+    [self.gameObjectsInGameArea addObject: breath];
+    // breath.position = position;
     
-    b2FixtureDef fixtureDef(noShapeFixtureDef);
-    fixtureDef.shape = shape;
+    [self.gameArea addSubview: breath.view];
+    breath.view.center = position;
     
-    breath.body = gameWorld->CreateBody(&bodyDef);
-    breath.body->CreateFixture(&fixtureDef);
-    breath.body->SetUserData((__bridge void*) breath);
+    [self setUpPhysicsBody: breath];
+    [breath setUpForPlay];
     
-    delete shape;
-    breath.body->ApplyForceToCenter(power);
+    [breath launch: power];
 }
 
-- (void) destroyBreath: (GameBreath*) gameBreath {
-    
-}
+/*
+ - (void) destroyBreath: (GameBreath*) gameBreath {
+ 
+ }
+ */
 
 - (void) playMode {
     assert(timer == nil);
@@ -456,6 +445,41 @@
     
     // TODO: Palette.
     self.palette.userInteractionEnabled = YES;
+}
+
+
+#pragma mark - Handle button events
+
+- (IBAction)buttonPressed:(id)sender {
+    /*
+    UIColor *newColor;
+    UIButton *button = (UIButton*)sender;
+    if ([button titleColorForState:UIControlStateNormal] ==
+        [UIColor blackColor]) {
+        newColor = [UIColor lightGrayColor];
+    } else {
+        newColor = [UIColor blackColor];
+    }
+    [button setTitleColor:newColor forState:UIControlStateNormal];
+     */
+}
+
+- (IBAction)resetButtonPressed:(id)sender {
+    DLog(@"Level builder is reset");    
+    
+    for (GameObject* o in self.gameObjectsInPalette) {
+        [o.view removeFromSuperview];
+        [o removeFromParentViewController];
+    }
+    [self.gameObjectsInPalette removeAllObjects];
+    
+    for (GameObject* o in self.gameObjectsInGameArea) {
+        [o.view removeFromSuperview];
+        [o removeFromParentViewController];
+    }
+    [self.gameObjectsInGameArea removeAllObjects];
+    
+    [self setUpPalette];
 }
 
 - (IBAction)playButtonPressed:(id)sender {

@@ -25,13 +25,11 @@
 }
 
 - (CGSize) defaultImageSize {
-    static const CGSize size = CGSizeMake(225, 150);
-    return size;
+    return CGSizeMake(225, 150);
 }
 
 - (CGSize) defaultIconSize {
-    static const CGSize size = CGSizeMake(150, 100);
-    return size;
+    return CGSizeMake(150, 100);
 }
 
 // TODO: Wolf alive and wolf die
@@ -73,6 +71,8 @@
 
 - (void) setUpForPlay {
     [super setUpForPlay];
+    
+    self.imageView.animationImages = [GameWolf getWolfImages];
     
     self.arrowView.image = [UIImage imageNamed: @"direction-arrow.png"];
     [self.arrowView sizeToFit];
@@ -121,6 +121,8 @@
 - (void) setUpForBuilder {
     [super setUpForBuilder];
     
+    self.imageView.animationImages = nil;
+    
     self.arrowView.image = nil;
     self.arrowView.hidden = YES;
     
@@ -148,6 +150,7 @@
     [super updateView];
     
     self.arrowView.center = [self.view convertPoint: CGPointMake(220, 30) toView: self.view.superview];
+    // DLog(@"%f %f", self.arrowView.center.x, self.arrowView.center.y);
     self.arrowView.transform = CGAffineTransformMakeRotation(body->GetAngle() + (M_PI / 2 - self.blowingAngle));
 }
 
@@ -213,10 +216,8 @@
         [self.imageView startAnimating];
         [self.windSuckView startAnimating];
         
-        // TODO: Add code to create game breath and launch it
-        b2Vec2 powerVec(self.power * cos(-self.angle) * MAX_BLOWING_POWER, self.power * sin(-self.angle) * MAX_BLOWING_POWER);
-        b2Vec2 positionVec(pixelToMeter(self.arrowView.center.x), pixelToMeter(self.arrowView.center.y));
-        [(GameViewController*) self.parentViewController createBreath: powerVec from: positionVec];
+        b2Vec2 powerVec(self.power * cos(- self.blowingAngle - self.angle) * MAX_BLOWING_POWER, self.power * sin(- self.blowingAngle - self.angle) * MAX_BLOWING_POWER);
+        [(GameViewController*) self.parentViewController createBreath: powerVec from: self.arrowView.center];
         
         self.powerBar.hidden = YES;
         self.staticPowerBar.hidden = YES;
@@ -252,7 +253,6 @@
     imageView = [[UIImageView alloc] initWithImage: wolfImage];
     
     self.imageView.userInteractionEnabled = YES;
-    self.imageView.animationImages = [GameWolf getWolfImages];
     self.imageView.animationRepeatCount = 1;
     self.imageView.animationDuration = BLOWING_TIME;
     
@@ -269,9 +269,6 @@
     self.arrowView.hidden = YES;
     self.arrowView.userInteractionEnabled = YES;
     self.arrowView.contentMode = UIViewContentModeTop;
-    // self.arrowView.autoresizingMask = UIViewAutoresizingNone;
-    
-    // [self.view addSubview: self.arrowView];
     
     // Set up image view for power bar
     powerBar = [[UIImageView alloc] init];

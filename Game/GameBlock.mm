@@ -73,13 +73,11 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 }
 
 - (CGSize) defaultImageSize {
-    static const CGSize size = CGSizeMake(30, 130);
-    return size;
+    return CGSizeMake(30, 130);
 }
 
 - (CGSize) defaultIconSize {
-    static const CGSize size = CGSizeMake(100, 100);
-    return size;
+    return CGSizeMake(100, 100);
 }
 
 - (CGFloat) maxScale {
@@ -93,6 +91,8 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
 - (GameObjectType) kGameObjectType {
     return kGameObjectBlock;
 }
+
+#pragma mark - Game mechanics
 
 - (void) setUpForPlay {
     [super setUpForPlay];
@@ -111,7 +111,7 @@ NSString* const kBlockImageFileNames[] =  {@"straw.png", @"wood.png", @"iron.png
     // DLog(@"Accummulated damage: %d %f", self.kGameBlockType, damage);
 }
 
-#pragma mark Gestures
+#pragma mark - Gestures
 
 - (BOOL) canTranslate {
     return YES;

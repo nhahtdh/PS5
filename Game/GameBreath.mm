@@ -11,6 +11,8 @@
 
 @implementation GameBreath
 
+@synthesize kGameObjectState = kGameObjectState_;
+
 + (NSArray*) windBlowImages {
     static NSArray* frames;
     if (frames == nil) {
@@ -19,11 +21,7 @@
     return frames;
 }
 
-- (CGSize) defaultImageSize {
-    static const CGSize size = CGSizeMake(110, 104);
-    return size;
-}
-
+/*
 - (id) initWithPower: (b2Vec2)pow from: (b2Vec2)pos {
     if (self = [super init]) {
         power = pow;
@@ -32,23 +30,44 @@
     
     return self;
 }
+ */
+
+- (id) init {
+    if (self = [super init]) {
+        kGameObjectState_ = kGameObjectStateOnGameArea;
+    }
+    
+    return self;
+}
+
+#pragma mark - GameBreath view
+
+- (CGSize) defaultImageSize {
+    return [(UIImage*) [[GameBreath windBlowImages] objectAtIndex:0] size];
+}
 
 #pragma mark - Game properties
+
+- (GameObjectType) kGameObjectType {
+    return kGameObjectBreath;
+}
 
 - (b2BodyDef) bodyDef {
     // REQUIRES: This function should only be called after it is confirmed that the game should start.
     // The object should also be properly inside the game area.
     
     b2BodyDef bodyDef;
-    bodyDef.position = position;
+    bodyDef.position = b2Vec2(pixelToMeter(self.view.center.x), pixelToMeter(self.view.center.y));
+    DLog(@"%f %f", self.view.center.x, self.view.center.y);
     bodyDef.type = b2_dynamicBody;
     return bodyDef;
 }
 
 - (b2Shape*) shape {
     b2CircleShape *shape = new b2CircleShape();
-    // Note: The value is slightly less than the defaultImageSize to account for blank spaces
-    shape->m_radius = pixelToMeter(self.defaultImageSize.height * 0.9);
+    // Since the dimensions are not equal, take the average. Since this is the radius, divide by 2 once more
+    shape->m_radius = pixelToMeter((self.defaultImageSize.height + self.defaultImageSize.width) / 4);
+    DLog(@"%f", shape->m_radius);
     
     return shape;
 }
@@ -57,7 +76,7 @@
     b2FixtureDef fixtureDef;
     
     fixtureDef.density = 5;
-    fixtureDef.friction = 0.2;
+    fixtureDef.friction = 0.8;
     fixtureDef.restitution = 0.1;
     
     return fixtureDef;
@@ -65,7 +84,29 @@
 
 #pragma mark - Game mechanics
 
-- (void) applyDamage:(const b2ContactImpulse *)impulses {}
+- (void) launch:(b2Vec2)power {
+    // self.body->ApplyForceToCenter(power);
+    
+    self.body->ApplyLinearImpulse(power, self.body->GetPosition());
+    [NSTimer scheduledTimerWithTimeInterval: 1 
+                                     target: self.imageView 
+                                   selector: @selector(startAnimating) 
+                                   userInfo: nil
+                                    repeats: NO];
+}
+
+- (void) setUpForPlay {
+    // NOTE: Currently, this function will call the method defined in the superclass
+    //       since there are no extra effect.
+    //       This function should be modified if there are extra effects that affect
+    //       the consistency of the program.
+    
+    [super setUpForPlay];
+}
+
+- (void) applyDamage:(const b2ContactImpulse *)impulses {
+
+}
 
 /*
 - (void) setUpForPlay {
@@ -83,14 +124,17 @@
 {
     [super viewDidLoad];
 
+    imageView = [[UIImageView alloc] init];
     self.imageView.image = [[GameBreath windBlowImages] objectAtIndex: 0];
+    DLog(@"%f %f", self.imageView.image.size.width, self.imageView.image.size.height);
     [self.imageView sizeToFit];
     self.imageView.animationImages = [GameBreath windBlowImages];
     self.imageView.animationRepeatCount = 0; // No limit
     self.imageView.animationDuration = 0.5;
-    self.imageView.center = CGPointMake(meterToPixel(position.x), meterToPixel(position.y));
     
     [self.view addSubview: self.imageView];
+    self.view.frame = CGRectMake(0, 0, self.defaultImageSize.width, self.defaultImageSize.height);
+    [self.view setBackgroundColor: [UIColor clearColor]];
 }
 
 - (void)viewDidUnload
@@ -99,6 +143,28 @@
     
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
+}
+
+#pragma mark - Unimplemented
+
+- (CGSize) defaultIconSize {
+    NOT_IMPLEMENTED();
+}
+
+- (CGFloat) maxScale {
+    NOT_IMPLEMENTED();
+}
+
+- (CGFloat) minScale {
+    NOT_IMPLEMENTED();
+}
+
+- (void) resetToPaletteIcon {
+    NOT_IMPLEMENTED();
+}
+
+- (void) setUpForBuilder {
+    NOT_IMPLEMENTED();
 }
 
 @end
